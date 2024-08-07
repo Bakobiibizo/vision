@@ -1,5 +1,7 @@
 from typing import Dict, List, Optional
-
+import base64
+import scipy
+from pydub.audio_segment import AudioSegment
 import bittensor as bt
 
 from models import base_models
@@ -83,3 +85,261 @@ class Chat(bt.StreamingSynapse, base_models.ChatBase):
             "dendrite": extract_info("bt_header_dendrite"),
             "axon": extract_info("bt_header_axon"),
         }
+
+
+class Translate(bt.synapse, base_models.TranslationBase):
+    def deserialize(self):
+        try:
+            re                                                                                                                                                         turn base64.b64decode(self.data.encode("utf-8"))
+        except EncodingWarning as e:
+            bt.logging(f"Error deserializing request: {e}")
+    
+    def serialize(self):
+        try:
+            return base64.b64encode(self.data).decode("utf-8")
+        except EncodingWarning as e:
+            bt.logging(f"Error serializing re
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                                  
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       
+                       quest: {e}")
+    
+    async def process_streaming_response(self, response: StreamingResponse) -> AsyncIterator[str]:
+        async for chunk in response.content.iter_any():
+            if isinstance(chunk, bytes):
+                tokens = chunk.decode("utf-8")
+                yield tokens

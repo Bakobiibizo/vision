@@ -4,15 +4,14 @@ The naming convention is super important to adhere too!
 Keep it as SynapseNameBase / SynapseNameIncoming / SynapseNameOutgoing
 """
 
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Union, Literal
 from pydantic import BaseModel, Field
-
 
 from core import constants as cst, Task
 from core import dataclasses as dc
 from models import utility_models
 import bittensor as bt
-
+from modules.translation.data_models import TASK_STRINGS, TARGET_LANGUAGES
 
 class VolumeForTask(BaseModel):
     volume: float
@@ -226,3 +225,16 @@ class ChatOutgoing(BaseModel): ...
 
 
 class ChatBase(ChatIncoming, ChatOutgoing): ...
+
+
+class TranslationIncoming(BaseModel):
+    input: str = Field(..., description="The input text or audio to be processed")
+    task_string: Literal[tuple(TASK_STRINGS.keys())] = Field(..., description="The task to be performed")
+    source_language: Literal[tuple(TARGET_LANGUAGES.keys())] = Field(..., description="The language of the input")
+    target_language: Literal[tuple(TARGET_LANGUAGES.keys())] = Field(..., description="The desired output language")
+
+class TranslationOutgoing(BaseModel):
+    data: str = Field(..., description="The processed output text or audio")
+
+class TranslationBase(TranslationIncoming, TranslationOutgoing):
+    pass
