@@ -87,7 +87,7 @@ class Chat(bt.StreamingSynapse, base_models.ChatBase):
         }
 
 
-class Translation(base_models.TranslationBase):
+class Translation(bt.Synapse, base_models.TranslationBase):
     def deserialize(self):
         try:
             return base64.b64decode(self.data.encode("utf-8"))

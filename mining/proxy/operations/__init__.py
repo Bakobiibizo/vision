@@ -8,7 +8,7 @@ from . import upscale_operation  # noqa
 from . import inpaint_operation  # noqa
 from . import clip_embeddings_operation  # noqa
 from . import avatar_operation  # noqa
-
+from . import translation_operation  # noqa
 
 TASKS_TO_MINER_OPERATION_MODULES: Dict[Task, Any] = {
     Task.chat_mixtral: chat_operation,
@@ -22,4 +22,5 @@ TASKS_TO_MINER_OPERATION_MODULES: Dict[Task, Any] = {
     Task.jugger_inpainting: inpaint_operation,
     Task.clip_image_embeddings: clip_embeddings_operation,
     Task.avatar: avatar_operation,
+    Task.translation: translation_operation
 }

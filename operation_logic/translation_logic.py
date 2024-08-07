@@ -30,7 +30,4 @@ async def translation_logic(
     output.translation_hashes = translation_response_body.translation_hashes
 
     return output
-
-
-def translation_request(request: TranslationRequest):
     
