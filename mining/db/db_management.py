@@ -18,6 +18,7 @@ DEFUALT_CONCURRENCY_GROUPS = {
     Task.jugger_inpainting: 3,
     Task.clip_image_embeddings: 3,  # disabled clip for now
     Task.avatar: 3,
+    Task.translation: 2
 }
 
 DEFAULT_CONCURRENCY_GROUP_VALUES = {1: 7, 2: 7, 3: 1}
