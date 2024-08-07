@@ -36,6 +36,7 @@ TASKS_TO_SYNAPSE: Dict[Task, bt.Synapse] = {
     Task.jugger_inpainting: synapses.Inpaint,
     Task.clip_image_embeddings: synapses.ClipEmbeddings,
     Task.avatar: synapses.Avatar,
+    Task.translation: synapses.Translation
 }
 
 

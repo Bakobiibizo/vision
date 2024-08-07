@@ -86,3 +86,7 @@ class ImageResponseBody(BaseModel):
 class MinerChatResponse(BaseModel):
     text: str
     logprob: float
+
+
+class TranslationResponseBody(BaseModel):
+    output: str

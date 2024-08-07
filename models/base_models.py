@@ -227,6 +227,7 @@ class ChatOutgoing(BaseModel): ...
 class ChatBase(ChatIncoming, ChatOutgoing): ...
 
 
+
 class TranslationIncoming(BaseModel):
     input: str = Field(..., description="The input text or audio to be processed")
     task_string: Literal[tuple(TASK_STRINGS.keys())] = Field(..., description="The task to be performed")
@@ -235,6 +236,6 @@ class TranslationIncoming(BaseModel):
 
 class TranslationOutgoing(BaseModel):
     data: str = Field(..., description="The processed output text or audio")
+    
 
-class TranslationBase(TranslationIncoming, TranslationOutgoing):
-    pass
+class TranslationBase(TranslationIncoming, TranslationOutgoing): ...

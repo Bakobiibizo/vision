@@ -100,6 +100,7 @@ OPERATION_UPSCALE = "Upscale"
 OPERATION_SEGMENT = "Segment"
 OPERATION_CLIP_EMBEDDINGS = "ClipEmbeddings"
 OPERATION_SCRIBBLE = "Scribble"
+OPERATION_TRANSLATION = "Translation"
 
 
 CLIP_MODEL_REPO = "laion/CLIP-ViT-bigG-14-laion2B-39B-b160k"
@@ -139,7 +140,7 @@ HOTKEY_PARAM = "bako_hot"
 IMAGE_WORKER_URL_PARAM = "http://100.64.221.101:8188/prompt"
 MIXTRAL_TEXT_WORKER_URL_PARAM = "text-agentartificial.ngrok.app/v1/chat/completions"
 LLAMA_3_TEXT_WORKER_URL_PARAM = "text-agentartificial.ngrok.app/v1/chat/completions"
-
+TRANSLATION_WORKER_URL_PARAM = "https://"
 
 SAFETY_CHECKERS_PARAM = "cuda:0"
 CLIP_DEVICE_PARAM = "cuda:0"
@@ -156,6 +157,7 @@ API_SERVER_PORT_PARAM = "4267"
 EXTERNAL_SERVER_ADDRESS_PARAM = "192.168.0.152"
 AXON_PORT_PARAM = "4269"
 AXON_EXTERNAL_IP_PARAM = "192.168.0.152"
+
 
 
 VISION_DB = "vision_database.db"

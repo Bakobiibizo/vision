@@ -40,6 +40,8 @@ class Config(BaseModel):
     axon_external_ip: str = os.getenv(core_cst.AXON_EXTERNAL_IP_PARAM, "127.0.0.1")
 
     debug_miner: bool = os.getenv(core_cst.DEBUG_MINER_PARAM, False)
+    
+    translation_worker_url: Optional[str] = os.getenv(core_cst.TRANSLATION_WORKER_URL_PARAM, None)
 
 
 config = Config()

@@ -14,6 +14,7 @@ class Task(Enum):
     jugger_inpainting = "inpaint"
     clip_image_embeddings = "clip-image-embeddings"
     avatar = "avatar"
+    translation = "translation"
 
 
 TASK_TO_MAX_CAPACITY: Dict[Task, int] = {
@@ -28,4 +29,5 @@ TASK_TO_MAX_CAPACITY: Dict[Task, int] = {
     Task.jugger_inpainting: 4_000,
     Task.clip_image_embeddings: 0,  # disabled clip for now
     Task.avatar: 1_120,
-}
+    Task.translation: 64_000
+    }
