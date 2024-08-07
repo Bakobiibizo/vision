@@ -26,8 +26,8 @@ load_dotenv(env_file, verbose=True)
 
 
 class Config(BaseModel):
-    hotkey_name: str = os.getenv(core_cst.HOTKEY_PARAM, "default")
-    wallet_name: str = os.getenv(core_cst.WALLET_NAME_PARAM, "default")
+    hotkey_name: str = os.getenv(core_cst.HOTKEY_PARAM, "bako_miner")
+    wallet_name: str = os.getenv(core_cst.WALLET_NAME_PARAM, "bako_hot")
 
     subtensor_network: str = os.getenv(core_cst.SUBTENSOR_NETWORK_PARAM, "finney")
     subtensor_chainendpoint: Optional[str] = os.getenv(core_cst.SUBTENSOR_CHAINENDPOINT_PARAM, None)
@@ -35,13 +35,12 @@ class Config(BaseModel):
     image_worker_url: Optional[str] = os.getenv(core_cst.IMAGE_WORKER_URL_PARAM, None)
     mixtral_text_worker_url: Optional[str] = os.getenv(core_cst.MIXTRAL_TEXT_WORKER_URL_PARAM, None)
     llama_3_text_worker_url: Optional[str] = os.getenv(core_cst.LLAMA_3_TEXT_WORKER_URL_PARAM, None)
+    translation_worker_url: Optional[str] = os.getenv(core_cst.TRANSLATION_WORKER_URL_PARAM)
 
-    axon_port: str = os.getenv(core_cst.AXON_PORT_PARAM, 8012)
+    axon_port: str = os.getenv(core_cst.AXON_PORT_PARAM, 4269)
     axon_external_ip: str = os.getenv(core_cst.AXON_EXTERNAL_IP_PARAM, "127.0.0.1")
 
     debug_miner: bool = os.getenv(core_cst.DEBUG_MINER_PARAM, False)
-    
-    translation_worker_url: Optional[str] = os.getenv(core_cst.TRANSLATION_WORKER_URL_PARAM, None)
 
 
 config = Config()

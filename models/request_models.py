@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, root_validator, validator
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from models import utility_models
 import random
 from core import constants as cst, dataclasses as dc
@@ -323,3 +323,6 @@ class UpscaleResponse(BaseModel):
 
 class ClipEmbeddingsResponse(BaseModel):
     clip_embeddings: List[List[float]] = Field(..., description="The image embeddings", title="clip_embeddings")
+
+class TranslationRequest(BaseModel):
+    data: Dict[str, Any]

@@ -111,7 +111,7 @@ DREAMSHAPER_PIPELINE_REPO = "Lykon/dreamshaper-8"
 CONTROL_MODEL_REPO = "xinsir/controlnet-union-sdxl-1.0"
 DATASET_REPO = "Bakobiibizo/train14"
 
-IS_VALIDATOR = "is_validator"
+IS_VALIDATOR = True
 
 CACHE_PATH = "image_cache"
 CACHE_SIZE = 40 * 1024**2  # 40mb, just something small for the validator
@@ -140,7 +140,7 @@ HOTKEY_PARAM = "bako_hot"
 IMAGE_WORKER_URL_PARAM = "http://100.64.221.101:8188/prompt"
 MIXTRAL_TEXT_WORKER_URL_PARAM = "text-agentartificial.ngrok.app/v1/chat/completions"
 LLAMA_3_TEXT_WORKER_URL_PARAM = "text-agentartificial.ngrok.app/v1/chat/completions"
-TRANSLATION_WORKER_URL_PARAM = "https://"
+TRANSLATION_WORKER_URL_PARAM = "https://translation-cellium.ngrok.app/translate"
 
 SAFETY_CHECKERS_PARAM = "cuda:0"
 CLIP_DEVICE_PARAM = "cuda:0"

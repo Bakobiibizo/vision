@@ -26,19 +26,19 @@ load_dotenv(env_file, verbose=True)
 
 
 class Config(BaseModel):
-    hotkey_name: str = os.getenv(core_cst.HOTKEY_PARAM, "default")
-    wallet_name: str = os.getenv(core_cst.WALLET_NAME_PARAM, "default")
+    hotkey_name: str = os.getenv(core_cst.HOTKEY_PARAM, "bako_vali")
+    wallet_name: str = os.getenv(core_cst.WALLET_NAME_PARAM, "bako_hot")
 
-    subtensor_network: str = os.getenv(core_cst.SUBTENSOR_NETWORK_PARAM, "test")
+    subtensor_network: str = os.getenv(core_cst.SUBTENSOR_NETWORK_PARAM, "finney")
     subtensor_chainendpoint: Optional[str] = os.getenv(
         core_cst.SUBTENSOR_CHAINENDPOINT_PARAM, None
     )
 
-    external_server_url: str = os.getenv(core_cst.EXTERNAL_SERVER_ADDRESS_PARAM, None)
+    external_server_url: str = os.getenv(core_cst.EXTERNAL_SERVER_ADDRESS_PARAM, "10.0.3.1")
 
-    api_server_port: Optional[int] = os.getenv(core_cst.API_SERVER_PORT_PARAM, None)
+    api_server_port: Optional[int] = os.getenv(core_cst.API_SERVER_PORT_PARAM, 4269)
 
-    is_validator: bool = False
+    is_validator: bool = True
 
 
 config = Config()

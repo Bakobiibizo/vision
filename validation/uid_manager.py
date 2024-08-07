@@ -29,6 +29,7 @@ TASK_TO_VOLUME_TO_REQUESTS_CONVERSION: Dict[Task, float] = {
     Task.jugger_inpainting: 20,
     Task.avatar: 10,
     Task.clip_image_embeddings: 1,
+    Task.translation: 300
 }
 
 

@@ -1,7 +1,13 @@
+import os
 from typing import Dict, Any, Optional
 from core import constants as core_cst
 from rich.prompt import Prompt
 from mining.db.db_management import miner_db_manager
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
 
 
 def device_processing_func(input: str):
@@ -39,11 +45,11 @@ def int_processing_func(input: str) -> Optional[int]:
 
 
 GLOBAL_PARAMETERS = {
-    core_cst.HOTKEY_PARAM: {"default": "default", "message": "Hotkey name: "},
+    core_cst.HOTKEY_PARAM: {"default": os.getenv("WALLET_NAME_PARAM"), "message": "Hotkey name: "},
 }
 
 MISC_PARAMETERS = {
-    core_cst.WALLET_NAME_PARAM: {"default": "default", "message": "Wallet Name "},
+    core_cst.WALLET_NAME_PARAM: {"default": "bako_vali", "message": "Wallet Name "},
     core_cst.SUBTENSOR_NETWORK_PARAM: {
         "default": "finney",
         "message": "Subtensor Network (finney, test, local)",
@@ -53,7 +59,7 @@ MISC_PARAMETERS = {
         "message": "Subtensor Chain Endpoint ",
     },
     core_cst.IS_VALIDATOR_PARAM: {
-        "default": "n",
+        "default": "y",
         "message": "Is this a Validator hotkey? (y/n) ",
         "process_function": bool_processing_func,
     },
@@ -61,7 +67,7 @@ MISC_PARAMETERS = {
 
 VALIDATOR_PARAMETERS = {
     core_cst.API_SERVER_PORT_PARAM: {
-        "default": None,
+        "default": 4267,
         "message": "API server port (if you're running an organic validator, else leave it)",
     },
     core_cst.EXTERNAL_SERVER_ADDRESS_PARAM: {
@@ -72,21 +78,26 @@ VALIDATOR_PARAMETERS = {
 }
 
 MINER_PARAMETERS = {
-    core_cst.AXON_PORT_PARAM: {"default": 8091, "message": "Axon Port: "},
-    core_cst.AXON_EXTERNAL_IP_PARAM: {"default": None, "message": "Axon External IP: "},
+    core_cst.AXON_PORT_PARAM: {"default": 4269, "message": "Axon Port: "},
+    core_cst.AXON_EXTERNAL_IP_PARAM: {"default": "10.0.3.1", "message": "Axon External IP: "},
     core_cst.IMAGE_WORKER_URL_PARAM: {
-        "default": None,
+        "default": "https://art-celium.ngrok.dev/prompt",
         "message": "Image Worker URL: ",
         "process_function": optional_http_address_processing_func,
     },
     core_cst.MIXTRAL_TEXT_WORKER_URL_PARAM: {
-        "default": None,
+        "default": "https://text-agentartificial.ngrok.app/v1/chat/completion",
         "message": "Mixtral Text Worker URL: ",
         "process_function": optional_http_address_processing_func,
     },
     core_cst.LLAMA_3_TEXT_WORKER_URL_PARAM: {
-        "default": None,
+        "default": "https://text-agentartificial.ngrok.app/v1/chat/completion",
         "message": "Llama 3 Text Worker URL: ",
+        "process_function": optional_http_address_processing_func,
+    },
+    core_cst.TRANSLATION_WORKER_URL_PARAM: {
+        "default": "https://translation-cellium.ngrok.app/translate",
+        "message": "Translation Text Worker URL: ",
         "process_function": optional_http_address_processing_func,
     },
 }
