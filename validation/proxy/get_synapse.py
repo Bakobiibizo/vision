@@ -1,7 +1,8 @@
 from typing import Type
 from pydantic import BaseModel
 import bittensor as bt
-from core import utils as core_utils, constants as core_cst
+from core import utils as core_utils
+from config import constant_obj as core_cst
 from validation.core_validator import core_validator
 
 

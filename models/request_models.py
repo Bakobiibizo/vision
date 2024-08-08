@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, root_validator, validator
+from pydantic import BaseModel, Field, root_validator, validator, model_validator
 from typing import Optional, List, Dict, Any
 from models import utility_models
 import random
@@ -120,13 +120,13 @@ class TextToImageRequest(BaseModel):
         use_enum_values = True
         extra = "forbid"
 
-    @validator("text_prompts")
+    @model_validator(mode="after")
     def check_text_prompts_non_empty(cls, values):
         if not values:
             raise ValueError("Text prompts cannot be empty")
         return values
 
-    @root_validator
+    @model_validator(mode="after")
     def allowed_params_validator(cls, values):
         engine = values.get("engine")
         steps = values.get("steps")
@@ -195,13 +195,13 @@ class ImageToImageRequest(BaseModel):
         1024, description="Width of the generated image", le=1344, ge=512
     )
 
-    @validator("text_prompts")
+    @model_validator(mode="after")
     def check_text_prompts_non_empty(cls, values):
         if not values:
             raise ValueError("Text prompts cannot be empty")
         return values
 
-    @root_validator
+    @model_validator(mode="after")
     def allowed_params_validator(cls, values):
         engine = values.get("engine")
         steps = values.get("steps")

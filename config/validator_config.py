@@ -34,14 +34,14 @@ class Config(BaseModel):
         or "finney"
     )
     subtensor_chainendpoint: Optional[str] = (
-        os.getenv("SUBTENSOR_CHAINENDPOINT_PARAM")
-        or CONSTANTS.SUBTENSOR_CHAINENDPOINT_PARAM
+        os.getenv("SUBTENSOR_CHAIN_ENDPOINT_PARAM")
+        or CONSTANTS.SUBTENSOR_CHAIN_ENDPOINT_PARAM
         or None
     )
     external_server_url: str = (
         os.getenv("EXTERNAL_SERVER_ADDRESS_PARAM")
         or CONSTANTS.EXTERNAL_SERVER_ADDRESS_PARAM
-        or "10.0.3.1"
+        or None
     )
     api_server_port: Optional[int] = (
         os.getenv("API_SERVER_PORT_PARAM") or CONSTANTS.API_SERVER_PORT_PARAM or 4269

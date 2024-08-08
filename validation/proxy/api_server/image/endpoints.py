@@ -1,4 +1,4 @@
-from core import Task
+from core import TASK as Task
 import fastapi
 from fastapi.responses import JSONResponse
 from models import base_models, synapses, utility_models, request_models

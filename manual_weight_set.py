@@ -29,11 +29,11 @@ async def main():
         uid_to_uid_info=core_validator.uid_to_uid_info,
         metagraph=core_validator.metagraph,
         total_hotkey_scores=total_scores,
-        netuid=19,
+        netuid=38,
     )
     core_validator.weight_setter._set_weights(
         wallet=core_validator.wallet,
-        netuid=19,
+        netuid=38,
         processed_weight_uids=uids,
         processed_weights=weights,
     )
