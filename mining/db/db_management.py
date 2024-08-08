@@ -1,23 +1,23 @@
 import sqlite3
 from typing import Dict
-from core import Task
-from core import TASK_TO_MAX_CAPACITY
+from core.tasks import TASK, TASK_TO_MAX_CAPACITY
+from config import ConstantsObj as core_cst
 from mining.db import sql
 from threading import local
 
 DEFUALT_CONCURRENCY_GROUPS = {
-    Task.chat_mixtral: 1,
-    Task.chat_llama_3: 2,
-    Task.proteus_text_to_image: 3,
-    Task.playground_text_to_image: 3,
-    Task.dreamshaper_text_to_image: 3,
-    Task.proteus_image_to_image: 3,
-    Task.playground_image_to_image: 3,
-    Task.dreamshaper_image_to_image: 3,
-    Task.jugger_inpainting: 3,
-    Task.clip_image_embeddings: 3,  # disabled clip for now
-    Task.avatar: 3,
-    Task.translation: 2,
+    TASK.CHAT_MIXTRAL: 1,
+    TASK.CHAT_LLAMA_3: 2,
+    TASK.PROTEUS_TEXT_TO_IMAGE: 3,
+    TASK.PLAYGROUND_TEXT_TO_IMAGE: 3,
+    TASK.DREAMSHAPER_TEXT_TO_IMAGE: 3,
+    TASK.PROTEUS_TEXT_TO_IMAGE: 3,
+    TASK.PLAYGROUND_IMAGE_TO_IMAGE: 3,
+    TASK.DREAMSHAPER_IMAGE_TO_IMAGE: 3,
+    TASK.JUGGER_INPAINT: 3,
+    TASK.CLIP_IMAGE_EMBEDDING: 3,  # disabled clip for now
+    TASK.AVATAR: 3,
+    TASK.TRANSLATION: 2,
 }
 
 DEFAULT_CONCURRENCY_GROUP_VALUES = {1: 7, 2: 7, 3: 1}
@@ -47,7 +47,7 @@ class DatabaseManager:
         conn = self.get_connection()
         cursor = conn.cursor()
 
-        for task in Task:
+        for task in TASK:
             cursor.execute(
                 sql.search_task_config(),
                 (
@@ -56,14 +56,14 @@ class DatabaseManager:
                 ),
             )
             if not cursor.fetchone():
-                max_capacity = TASK_TO_MAX_CAPACITY[task]
-                default_capcity = max_capacity / 2
-                concurrency_group_id = DEFUALT_CONCURRENCY_GROUPS[task]
+                max_capacity = TASK_TO_MAX_CAPACITY[TASK]
+                default_capacity = max_capacity / 2
+                concurrency_group_id = DEFUALT_CONCURRENCY_GROUPS[TASK]
                 cursor.execute(
                     sql.insert_default_task_configs(),
                     (
                         task.value,
-                        default_capcity,
+                        default_capacity,
                         concurrency_group_id,
                         miner_hotkey,
                     ),

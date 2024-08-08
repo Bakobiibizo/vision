@@ -1,8 +1,12 @@
 {
     "cSpell.words": [
+        "bittensor",
+        "coldkey",
+        "DEFUALT",
         "DREAMSHAPER",
         "INPAINT",
         "JUGGER",
-        "MIXTRAL"
+        "MIXTRAL",
+        "pydantic"
     ]
 }
