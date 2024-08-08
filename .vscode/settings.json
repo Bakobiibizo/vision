@@ -1,12 +1,33 @@
 {
     "cSpell.words": [
+        "bako",
+        "Bakobiibizo",
         "bittensor",
+        "CHAINENDPOINT",
+        "CHAINPOINT",
         "coldkey",
+        "controlnet",
         "DEFUALT",
+        "dotenv",
         "DREAMSHAPER",
+        "dreamshaperxlalpha",
+        "esrgan",
         "INPAINT",
+        "ipadapter",
         "JUGGER",
+        "KANDINKSY",
+        "laion",
+        "Lykon",
         "MIXTRAL",
-        "pydantic"
+        "netuid",
+        "opentensor",
+        "PERFIX",
+        "proximasanfinetuning",
+        "pydantic",
+        "safetensors",
+        "SDXL",
+        "SUBTENSOR",
+        "vali",
+        "xinsir"
     ]
 }

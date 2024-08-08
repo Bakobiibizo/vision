@@ -1,23 +1,28 @@
+import os
 import sqlite3
 from typing import Dict
-from core.tasks import TASK, TASK_TO_MAX_CAPACITY
-from config import ConstantsObj as core_cst
 from mining.db import sql
+from core import TASK, TASK_TO_MAX_CAPACITY
+from config import constant_obj as cst
 from threading import local
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 DEFUALT_CONCURRENCY_GROUPS = {
-    TASK.CHAT_MIXTRAL: 1,
-    TASK.CHAT_LLAMA_3: 2,
-    TASK.PROTEUS_TEXT_TO_IMAGE: 3,
-    TASK.PLAYGROUND_TEXT_TO_IMAGE: 3,
-    TASK.DREAMSHAPER_TEXT_TO_IMAGE: 3,
-    TASK.PROTEUS_TEXT_TO_IMAGE: 3,
-    TASK.PLAYGROUND_IMAGE_TO_IMAGE: 3,
-    TASK.DREAMSHAPER_IMAGE_TO_IMAGE: 3,
-    TASK.JUGGER_INPAINT: 3,
-    TASK.CLIP_IMAGE_EMBEDDING: 3,  # disabled clip for now
-    TASK.AVATAR: 3,
-    TASK.TRANSLATION: 2,
+    "CHAT_MIXTRAL": 1,
+    "CHAT_LLAMA_3": 2,
+    "PROTEUS_TEXT_TO_IMAGE": 3,
+    "PLAYGROUND_TEXT_TO_IMAGE": 3,
+    "DREAMSHAPER_TEXT_TO_IMAGE": 3,
+    "PROTEUS_IMAGE_TO_IMAGE": 3,
+    "PLAYGROUND_IMAGE_TO_IMAGE": 3,
+    "DREAMSHAPER_IMAGE_TO_IMAGE": 3,
+    "JUGGER_INPAINT": 3,
+    "CLIP_IMAGE_EMBEDDING": 3,  # disabled clip for now
+    "AVATAR": 3,
+    "TRANSLATION": 2,
 }
 
 DEFAULT_CONCURRENCY_GROUP_VALUES = {1: 7, 2: 7, 3: 1}
@@ -29,7 +34,7 @@ class DatabaseManager:
 
     def get_connection(self):
         if not hasattr(self.local_data, "conn"):
-            self.local_data.conn = sqlite3.connect(core_cst.VISION_DB)
+            self.local_data.conn = sqlite3.connect(cst.VISION_DB)
         return self.local_data.conn
 
     def close(self):
@@ -56,9 +61,12 @@ class DatabaseManager:
                 ),
             )
             if not cursor.fetchone():
-                max_capacity = TASK_TO_MAX_CAPACITY[TASK]
-                default_capacity = max_capacity / 2
-                concurrency_group_id = DEFUALT_CONCURRENCY_GROUPS[TASK]
+                max_capacity = TASK_TO_MAX_CAPACITY[str(task.name)].value
+                print(max_capacity)
+                default_capacity = int(max_capacity) / 2
+                print(DEFUALT_CONCURRENCY_GROUPS)
+                concurrency_group_id = DEFUALT_CONCURRENCY_GROUPS[task.name]
+                print(concurrency_group_id)
                 cursor.execute(
                     sql.insert_default_task_configs(),
                     (
@@ -98,7 +106,7 @@ class DatabaseManager:
         results = {}
         for row in rows:
             task, volume, concurrency_group_id = row
-            results[task] = {
+            results[TASK] = {
                 "volume": volume,
                 "concurrency_group_id": concurrency_group_id,
             }
@@ -106,3 +114,7 @@ class DatabaseManager:
 
 
 miner_db_manager = DatabaseManager()
+
+hotkey = os.getenv("HOTKEY_PARAM")
+
+miner_db_manager.insert_default_task_configs(hotkey)

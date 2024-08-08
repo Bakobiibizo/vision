@@ -1,4 +1,4 @@
-from core import Task
+from core import TASK as Task
 import enum
 import json
 import time

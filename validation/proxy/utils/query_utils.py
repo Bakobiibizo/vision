@@ -2,7 +2,7 @@ import asyncio
 import time
 from typing import Any, AsyncIterator, Dict, List, Optional, Tuple, Union
 from pydantic import BaseModel, ValidationError
-from core import Task
+from core import TASK as Task
 from models import base_models, utility_models
 import bittensor as bt
 from validation.proxy.utils import constants as cst

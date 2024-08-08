@@ -6,14 +6,15 @@ from typing import Any, Callable, Dict, Optional, Tuple, TypeVar
 import bittensor as bt
 
 # import base miner class which takes care of most of the boilerplate
-from config import configuration
-from core import Task, constants as core_cst, utils
-from config.miner_config import config as miner_config
+from config import constant_obj as core_cst
+from config.configuration import get_miner_cli_config
+from core import TASK as Task, utils
 from core import bittensor_overrides as bto
 
 
 T = TypeVar("T", bound=bt.Synapse)
 
+miner_config = get_miner_cli_config()
 
 metagraph = None
 
@@ -79,26 +80,29 @@ def base_priority(synapse: T) -> float:
 class CoreMiner:
     def __init__(self) -> None:
         self.config = self.prepare_config_and_logging()
-        self.wallet = bt.wallet(config=self.config)
+        self.wallet = bt.wallet(
+            name=core_cst.WALLET_NAME_PARAM,
+            hotkey=core_cst.HOTKEY_PARAM,
+            config=self.config,
+        )
+        self.axon = bto.axon(
+            wallet=self.wallet,
+            config=self.config,
+            port=core_cst.AXON_PORT_PARAM,
+            ip=core_cst.AXON_EXTERNAL_IP_PARAM,
+            external_port=core_cst.AXON_PORT_PARAM,
+            external_ip=core_cst.AXON_EXTERNAL_IP_PARAM,
+        )
 
         bt.logging.debug("Creating subtensor...")
         self.subtensor = bt.subtensor(config=self.config)
 
         global metagraph
-        metagraph = self.subtensor.metagraph(netuid=self.config.netuid)
+        metagraph = self.subtensor.metagraph(netuid=38 or self.config.netuid)
 
-        if self.config.axon.external_ip is not None:
-            bt.logging.debug(
-                f"Will start axon on port {self.config.axon.port} and external ip {self.config.axon.external_ip}"
-            )
-            self.axon = bto.axon(
-                wallet=self.wallet,
-                port=self.config.axon.port,
-                external_ip=self.config.axon.external_ip,
-            )
-        else:
-            bt.logging.debug(f"Will start axon on port {self.config.axon.port}")
-            self.axon = bto.axon(wallet=self.wallet, port=self.config.axon.port)
+        bt.logging.debug(
+            f"Will start axon on port {self.config.axon.port} and external ip {self.config.axon.external_ip}"
+        )
 
         self.should_exit: bool = False
         self.is_running: bool = False
@@ -117,10 +121,9 @@ class CoreMiner:
         except Exception:
             bt.logging.error(traceback.format_exc())
 
-    def prepare_config_and_logging(self) -> bt.config:
-        base_config = configuration.get_miner_cli_config()
-        bt.logging(config=base_config, logging_dir=base_config.full_path)
-        return base_config
+    def prepare_config_and_logging(self):
+        self.config = miner_config
+        return self.config
 
     def attach_to_axon(
         self,

@@ -4,11 +4,11 @@ The naming convention is super important to adhere too!
 Keep it as SynapseNameBase / SynapseNameIncoming / SynapseNameOutgoing
 """
 
-from typing import List, Optional, Dict, Union, Literal
+from typing import List, Optional, Dict, Literal
 from pydantic import BaseModel, Field
-
-from core import constants as cst, Task
+from config import constant_obj as cst
 from core import dataclasses as dc
+from core import TASK as Task
 from models import utility_models
 import bittensor as bt
 from modules.translation.data_models import TASK_STRINGS, TARGET_LANGUAGES

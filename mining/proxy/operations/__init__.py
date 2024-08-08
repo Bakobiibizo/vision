@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from core import Task
+from core import TASK as Task
 from . import capacity_operation  # noqa
 from . import chat_operation  # noqa
 from . import text_to_image_operation  # noqa
@@ -11,16 +11,16 @@ from . import avatar_operation  # noqa
 from . import translation_operation  # noqa
 
 TASKS_TO_MINER_OPERATION_MODULES: Dict[Task, Any] = {
-    Task.chat_mixtral: chat_operation,
-    Task.chat_llama_3: chat_operation,
-    Task.proteus_text_to_image: text_to_image_operation,
-    Task.playground_text_to_image: text_to_image_operation,
-    Task.dreamshaper_text_to_image: text_to_image_operation,
-    Task.proteus_image_to_image: image_to_image_operation,
-    Task.playground_image_to_image: image_to_image_operation,
-    Task.dreamshaper_image_to_image: image_to_image_operation,
-    Task.jugger_inpainting: inpaint_operation,
-    Task.clip_image_embeddings: clip_embeddings_operation,
-    Task.avatar: avatar_operation,
-    Task.translation: translation_operation,
+    "chat_mixtral": chat_operation,
+    "chat_llama_3": chat_operation,
+    "proteus_text_to_image": text_to_image_operation,
+    "playground_text_to_image": text_to_image_operation,
+    "dreamshaper_text_to_image": text_to_image_operation,
+    "proteus_image_to_image": image_to_image_operation,
+    "playground_image_to_image": image_to_image_operation,
+    "dreamshaper_image_to_image": image_to_image_operation,
+    "jugger_inpainting": inpaint_operation,
+    "clip_image_embeddings": clip_embeddings_operation,
+    "avatar": avatar_operation,
+    "translation": translation_operation,
 }

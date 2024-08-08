@@ -7,7 +7,7 @@ import random
 from io import BytesIO
 import io
 import binascii
-from mining.db.db_management import miner_db_manager
+from mining.db import miner_db_manager
 
 
 # Would people want this to be in a DB instead which is read on every request, but then more configurable?
@@ -17,6 +17,10 @@ def load_concurrency_groups(hotkey: str) -> Dict[str, float]:
 
 def load_capacities(hotkey: str) -> Dict[str, Dict[str, float]]:
     return miner_db_manager.load_task_capacities(hotkey)
+
+
+def insert_tasks(hotkey: str):
+    return miner_db_manager.insert_default_task_configs(hotkey)
 
 
 def generate_mask_with_circle(image_b64: str) -> np.ndarray:

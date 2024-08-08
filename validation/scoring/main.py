@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 import bittensor as bt
 import substrateinterface
-from core import Task
+from core import TASK as Task
 from validation.models import RewardData
 from validation.proxy.utils import constants as cst
 import httpx

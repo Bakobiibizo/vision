@@ -2,7 +2,7 @@ from collections import defaultdict
 
 
 from pydantic import BaseModel, Field
-from core import Task
+from core import TASK as Task
 import bittensor as bt
 from typing import Optional
 from datetime import datetime

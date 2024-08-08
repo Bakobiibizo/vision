@@ -1,4 +1,4 @@
-from mining.db import constants as cst
+from config import constant_obj as cst
 
 
 def select_tasks_and_number_of_results() -> str:

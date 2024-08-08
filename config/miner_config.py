@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from typing import Optional
-from config.create_config import CONSTANTS
+from config import constant_obj as CONSTANTS
 import os
 import bittensor as bt
 import argparse
@@ -37,32 +37,28 @@ class Config(BaseModel):
     )
     subtensor_chainendpoint: Optional[str] = (
         os.getenv("SUBTENSOR_CHAINENDPOINT_PARAM")
-        or CONSTANTS.SUBTENSOR_CHAINENDPOINT_PARAM
+        or CONSTANTS.SUBTENSOR_CHAIN_ENDPOINT_PARAM
         or None
     )
     image_worker_url: Optional[str] = (
-        os.getenv("IMAGE_WORKER_URL_PARAM") or CONSTANTS.IMAGE_WORKER_URL_PARAM or None
+        os.getenv("IMAGE_WORKER_URL_PARAM") or CONSTANTS.IMAGE_WORKER_URL_PARAM
     )
     mixtral_text_worker_url: Optional[str] = (
         os.getenv("MIXTRAL_TEXT_WORKER_URL_PARAM")
         or CONSTANTS.MIXTRAL_TEXT_WORKER_URL_PARAM
-        or None
     )
     llama_3_text_worker_url: Optional[str] = (
         os.getenv("LLAMA_3_TEXT_WORKER_URL_PARAM")
         or CONSTANTS.LLAMA_3_TEXT_WORKER_URL_PARAM
-        or None
     )
     translation_worker_url: Optional[str] = (
         os.getenv("TRANSLATION_WORKER_URL_PARAM")
         or CONSTANTS.TRANSLATION_WORKER_URL_PARAM
-        or None
     )
-    axon_port: str = os.getenv("AXON_PORT_PARAM") or CONSTANTS.AXON_PORT_PARAM or 4269
+    axon_port: str = os.getenv("AXON_PORT_PARAM") or CONSTANTS.AXON_PORT_PARAM
+
     axon_external_ip: str = (
-        os.getenv("AXON_EXTERNAL_IP_PARAM")
-        or CONSTANTS.AXON_EXTERNAL_IP_PARAM
-        or "127.0.0.1"
+        os.getenv("AXON_EXTERNAL_IP_PARAM") or CONSTANTS.AXON_EXTERNAL_IP_PARAM
     )
     debug_miner: bool = (
         os.getenv("DEBUG_MINER_PARAM") or CONSTANTS.DEBUG_MINER_PARAM or False

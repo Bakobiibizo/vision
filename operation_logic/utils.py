@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from PIL import Image, ImageOps
 from models import utility_models
-from core import constants as cst
+from config import constant_obj as cst
 from core import dataclasses as dc
 from pydantic import BaseModel
 from config.miner_config import config as miner_config

@@ -5,7 +5,7 @@ import numpy as np
 from pydantic import BaseModel
 import bittensor as bt
 
-from core import Task
+from core import TASK as Task
 from validation.models import axon_uid
 
 

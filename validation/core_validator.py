@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 import httpx
 from pydantic import BaseModel
 
-from core import Task
+from core import TASK as Task
 from core import TASK_TO_MAX_CAPACITY
 import bittensor as bt
 from validation.synthetic_data.synthetic_generations import SyntheticDataManager
@@ -28,7 +28,7 @@ from validation.uid_manager import UidManager
 from validation.weight_setting.main import WeightSetter
 from validation.db import post_stats
 from validation.db.db_management import db_manager
-from core import constants as core_cst
+from config import constant_obj as core_cst
 
 PROXY_VERSION = "4.0"
 # Change this to not be hardcoded, once the orchestrator supports is
@@ -148,17 +148,7 @@ class CoreValidator:
         Hardcode to a couple of values
         """
         weights = {
-            Task.chat_mixtral: 0.1,
-            Task.chat_llama_3: 0.1,
-            Task.proteus_text_to_image: 0.2,
-            Task.playground_text_to_image: 0.1,
-            Task.dreamshaper_text_to_image: 0.05,
-            Task.proteus_image_to_image: 0.1,
-            Task.playground_image_to_image: 0.05,
-            Task.dreamshaper_image_to_image: 0.05,
-            Task.jugger_inpainting: 0.05,
-            Task.clip_image_embeddings: 0.0,
-            Task.avatar: 0.20,
+            "translation": 1.5
         }
         db_manager.task_weights = weights
         return weights

@@ -1,8 +1,6 @@
 from typing import Optional
-
 from bittensor.chain_data import AxonInfo
 from pydantic import BaseModel
-from config import ConstantsObj, CONSTANTS
 
 
 class Model(BaseModel):
@@ -24,4 +22,4 @@ class TextPrompt(BaseModel):
     weight: Optional[float]
 
 
-__all__ = ["ConstantsObj", "CONSTANTS", "Model", "Axon", "TextPrompt"]
+__all__ = ["Model", "Axon", "TextPrompt"]

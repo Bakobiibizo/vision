@@ -2,7 +2,8 @@ from pydantic import BaseModel, Field, root_validator, validator
 from typing import Optional, List, Dict, Any
 from models import utility_models
 import random
-from core import constants as cst, dataclasses as dc
+from config import constant_obj as cst
+from core import dataclasses as dc
 
 ALLOWED_PARAMS_FOR_ENGINE = {
     utility_models.EngineEnum.PROTEUS.value: {

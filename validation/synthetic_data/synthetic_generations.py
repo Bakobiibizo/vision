@@ -6,7 +6,8 @@ import threading
 import httpx
 from typing import Dict, Any
 from config.validator_config import config as validator_config
-from core import Task, tasks, constants as core_cst
+from core import TASK as Task, tasks
+from config import constant_obj as core_cst
 import bittensor as bt
 from core import dataclasses as dc
 from models import base_models

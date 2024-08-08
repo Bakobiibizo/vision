@@ -5,11 +5,13 @@ from typing import AsyncGenerator, Dict, List, Union
 
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from core import Task, bittensor_overrides as bto
+from core import TASK as Task
+from core import  bittensor_overrides as bto
 import bittensor as bt
 from validation.models import UIDRecord, axon_uid
 from validation.synthetic_data import synthetic_generations
-from core import tasks, constants as core_cst
+from core import TASK as tasks
+from config import constant_obj as core_cst
 from validation.proxy.utils import query_utils
 from models import base_models, utility_models
 from validation.db.db_management import db_manager
@@ -18,18 +20,18 @@ from validation.db.db_management import db_manager
 # IMAGE VOLUMES ARE IN STEP
 # CLIP IS IN IMAGES
 TASK_TO_VOLUME_TO_REQUESTS_CONVERSION: Dict[Task, float] = {
-    Task.chat_llama_3: 300,
-    Task.chat_mixtral: 300,
-    Task.proteus_text_to_image: 10,
-    Task.playground_text_to_image: 50,
-    Task.dreamshaper_text_to_image: 10,
-    Task.proteus_image_to_image: 10,
-    Task.playground_image_to_image: 50,
-    Task.dreamshaper_image_to_image: 10,
-    Task.jugger_inpainting: 20,
-    Task.avatar: 10,
-    Task.clip_image_embeddings: 1,
-    Task.translation: 300,
+    "chat_llama_3": 300,
+    "chat_mixtral": 300,
+    "proteus_text_to_image": 10,
+    "playground_text_to_image": 50,
+    "dreamshaper_text_to_image": 10,
+    "proteus_image_to_image": 10,
+    "playground_image_to_image": 50,
+    "dreamshaper_image_to_image": 10,
+    "jugger_inpainting": 20,
+    "avatar": 10,
+    "clip_image_embeddings": 1,
+    "translation": 300,
 }
 
 

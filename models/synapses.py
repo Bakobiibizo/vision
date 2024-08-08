@@ -7,7 +7,7 @@ import bittensor as bt
 from models import base_models
 
 from typing import AsyncIterator
-from core import Task
+from core import TASK as Task
 
 from starlette.responses import StreamingResponse
 

@@ -2,7 +2,7 @@ import json
 import math
 from typing import Dict, Any, List, Union
 
-from core import Task
+from core import TASK as Task
 from core import tasks
 from core.tasks import TaskConfig, TaskType
 from models import base_models, utility_models

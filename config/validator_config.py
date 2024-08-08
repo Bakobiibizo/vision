@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-from config.create_config import CONSTANTS
+from config import constant_obj as CONSTANTS
 from dotenv import load_dotenv
 import os
 import bittensor as bt

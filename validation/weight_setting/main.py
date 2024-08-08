@@ -5,7 +5,7 @@ from typing import Dict, List, Tuple, Union
 
 import bittensor as bt
 import torch
-from core import Task
+from core import TASK as Task
 from models import utility_models
 from validation.models import axon_uid
 from validation.weight_setting import calculations

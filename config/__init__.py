@@ -1,3 +1,3 @@
-from config.create_config import CONSTANTS, ConstantsObj
+from config.create_config import constant_obj
 
-__all__ = ["CONSTANTS", "ConstantsObj"]
+__all__ = ["constant_obj"]

@@ -3,9 +3,9 @@ import time
 import tracemalloc
 
 import bittensor as bt
-from core import utils, Task
+from core import utils, TASK as Task
 from mining.proxy import core_miner
-from config.miner_config import config
+from config import constant_obj as config, miner_config
 from mining.proxy import operations
 
 # For determinism
@@ -16,30 +16,29 @@ if __name__ == "__main__":
     miner = core_miner.CoreMiner()
 
     bt.logging.info("Loading all config & resources....")
-
-    if config.debug_miner:
-        bt.logging.debug("Miner is in debug mode 🪳🔫")
+    try:
+        if config.debug_miner:
+            bt.logging.debug("Miner is in debug mode 🪳🔫")
+    except Exception as e:
+        bt.logging.info("Miner is in debug mode")
 
     capacity_module = importlib.import_module(
         "mining.proxy.operations.translation_operation"
     )
-    capacity_operation_name = capacity_module.operation_name
 
-    CapcityClass = getattr(capacity_module, capacity_operation_name)
+    CapacityClass = getattr(capacity_module, "TranslationOperation")
     miner.attach_to_axon(
-        CapcityClass.forward, CapcityClass.blacklist, CapcityClass.priority
+        CapacityClass.forward, CapacityClass.blacklist, CapacityClass.priority
     )
 
-    task_and_capacities = utils.load_capacities(hotkey=config.hotkey_name)
+    task_and_capacities = utils.load_capacities(config.HOTKEY_PARAM)
     operations_supported = set()
-    if not config.debug_miner:
+    if not config.DEBUG_MINER_PARAM:
         for task in Task:
-            operation_module = operations.TASKS_TO_MINER_OPERATION_MODULES[task]
-            if operation_module.__name__ not in operations_supported:
-                operations_supported.add(operation_module.__name__)
-                operation_class = getattr(
-                    operation_module, operation_module.operation_name
-                )
+            operation_module = operations.TASKS_TO_MINER_OPERATION_MODULES["translation"]
+            if operation_module not in operations_supported:
+                operations_supported.add(operation_module)
+                operation_class = getattr(operation_module, "TranslationOperation")
                 miner.attach_to_axon(
                     getattr(operation_class, "forward"),
                     getattr(operation_class, "blacklist"),

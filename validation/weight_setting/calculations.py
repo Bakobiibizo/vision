@@ -1,7 +1,7 @@
 # Schema for the db
 from typing import Dict, List
 
-from core import Task
+from core import TASK as Task
 from models import utility_models
 from validation.db.db_management import db_manager
 from validation.models import PeriodScore

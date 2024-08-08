@@ -5,7 +5,8 @@ import json
 from typing import List, Dict, Any, Optional, Union
 
 import aiosqlite
-from core import Task, constants as core_cst
+from core import TASK as Task
+from config import constant_obj as core_cst
 
 import bittensor as bt
 

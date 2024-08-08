@@ -1,4 +1,4 @@
-from core import Task
+from core import TASK as Task
 from models import base_models
 import bittensor as bt
 import httpx
