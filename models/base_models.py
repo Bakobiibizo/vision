@@ -13,6 +13,7 @@ from models import utility_models
 import bittensor as bt
 from modules.translation.data_models import TASK_STRINGS, TARGET_LANGUAGES
 
+
 class VolumeForTask(BaseModel):
     volume: float
 
@@ -22,28 +23,36 @@ class BaseSynapse(bt.Synapse):
 
 
 class BaseOutgoing(BaseModel):
-    error_message: Optional[str] = Field(None, description="The error message", title="error_message")
+    error_message: Optional[str] = Field(
+        None, description="The error message", title="error_message"
+    )
 
 
 # AVAILABLE OPERATIONS
 
 
-class CapacityIncoming(BaseModel): ...
+class CapacityIncoming(BaseModel):
+    ...
 
 
 class CapacityOutgoing(BaseModel):
     capacities: Optional[Dict[Task, VolumeForTask]]
 
 
-class CapacityBase(CapacityIncoming, CapacityOutgoing): ...
+class CapacityBase(CapacityIncoming, CapacityOutgoing):
+    ...
 
 
 # Generic image gen
 
 
 class ImageGenerationBase(BaseModel):
-    cfg_scale: float = Field(cst.DEFAULT_CFG_SCALE, description="Scale for the configuration")
-    steps: int = Field(cst.DEFAULT_STEPS, description="Number of steps in the image generation process")
+    cfg_scale: float = Field(
+        cst.DEFAULT_CFG_SCALE, description="Scale for the configuration"
+    )
+    steps: int = Field(
+        cst.DEFAULT_STEPS, description="Number of steps in the image generation process"
+    )
     seed: int = Field(
         ...,
         description="Random seed for generating the image. NOTE: THIS CANNOT BE SET, YOU MUST PASS IN 0, SORRY!",
@@ -58,42 +67,58 @@ class ImageGenerationBase(BaseModel):
 
 
 class ImageResponseBase(BaseOutgoing):
-    image_b64: Optional[str] = Field(None, description="The base64 encoded images to return", title="image_b64")
-    clip_embeddings: Optional[List[float]] = Field(None, description="The clip embeddings for each of the images")
-    image_hashes: Optional[utility_models.ImageHashes] = Field(None, description="Image hash's for each image")
+    image_b64: Optional[str] = Field(
+        None, description="The base64 encoded images to return", title="image_b64"
+    )
+    clip_embeddings: Optional[List[float]] = Field(
+        None, description="The clip embeddings for each of the images"
+    )
+    image_hashes: Optional[utility_models.ImageHashes] = Field(
+        None, description="Image hash's for each image"
+    )
     is_nsfw: Optional[bool] = Field(None, description="Is the image NSFW")
 
 
 # TEXT TO IMAGE
 class TextToImageIncoming(ImageGenerationBase):
-    text_prompts: List[dc.TextPrompt] = Field([], description="Prompts for the image generation", title="text_prompts")
+    text_prompts: List[dc.TextPrompt] = Field(
+        [], description="Prompts for the image generation", title="text_prompts"
+    )
 
     height: int = Field(cst.DEFAULT_HEIGHT, description="Height of the generated image")
     width: int = Field(cst.DEFAULT_WIDTH, description="Width of the generated image")
 
 
-class TextToImageOutgoing(ImageResponseBase): ...
+class TextToImageOutgoing(ImageResponseBase):
+    ...
 
 
-class TextToImageBase(TextToImageIncoming, TextToImageOutgoing): ...
+class TextToImageBase(TextToImageIncoming, TextToImageOutgoing):
+    ...
 
 
 # IMAGE TO IMAGE
 
 
 class ImageToImageIncoming(ImageGenerationBase):
-    init_image: Optional[str] = Field(..., description="The base64 encoded image", title="init_image")
-    text_prompts: List[dc.TextPrompt] = Field([], description="Prompts for the image generation", title="text_prompts")
+    init_image: Optional[str] = Field(
+        ..., description="The base64 encoded image", title="init_image"
+    )
+    text_prompts: List[dc.TextPrompt] = Field(
+        [], description="Prompts for the image generation", title="text_prompts"
+    )
     image_strength: float = Field(0.25, description="The strength of the init image")
 
     height: Optional[int] = Field(None, description="Height of the generated image")
     width: Optional[int] = Field(None, description="Width of the generated image")
 
 
-class ImageToImageOutgoing(ImageResponseBase): ...
+class ImageToImageOutgoing(ImageResponseBase):
+    ...
 
 
-class ImageToImageBase(ImageToImageIncoming, ImageToImageOutgoing): ...
+class ImageToImageBase(ImageToImageIncoming, ImageToImageOutgoing):
+    ...
 
 
 # Inpaint
@@ -104,29 +129,43 @@ class InpaintIncoming(BaseModel):
     steps: int = Field(8, description="Number of steps in the image generation process")
     cfg_scale: float = Field(3.0, description="Scale for the configuration")
 
-    init_image: Optional[str] = Field(..., description="The base64 encoded image", title="init_image")
-    text_prompts: List[dc.TextPrompt] = Field([], description="Prompts for the image generation", title="text_prompts")
+    init_image: Optional[str] = Field(
+        ..., description="The base64 encoded image", title="init_image"
+    )
+    text_prompts: List[dc.TextPrompt] = Field(
+        [], description="Prompts for the image generation", title="text_prompts"
+    )
 
-    mask_image: Optional[str] = Field(None, description="The base64 encoded mask", title="mask_source")
+    mask_image: Optional[str] = Field(
+        None, description="The base64 encoded mask", title="mask_source"
+    )
 
     class Config:
         use_enum_values = True
 
 
-class InpaintOutgoing(ImageResponseBase): ...
+class InpaintOutgoing(ImageResponseBase):
+    ...
 
 
-class InpaintBase(InpaintIncoming, InpaintOutgoing): ...
+class InpaintBase(InpaintIncoming, InpaintOutgoing):
+    ...
 
 
 class AvatarIncoming(BaseModel):
-    text_prompts: List[dc.TextPrompt] = Field(..., description="Prompts for the image generation", title="text_prompts")
-    init_image: Optional[str] = Field(..., description="The base64 encoded image", title="image")
+    text_prompts: List[dc.TextPrompt] = Field(
+        ..., description="Prompts for the image generation", title="text_prompts"
+    )
+    init_image: Optional[str] = Field(
+        ..., description="The base64 encoded image", title="image"
+    )
     ipadapter_strength: float = Field(..., description="The strength of the init image")
     control_strength: float = Field(..., description="The strength of the init image")
     height: int = Field(..., description="Height of the generated image")
     width: int = Field(..., description="Width of the generated image")
-    steps: int = Field(..., description="Number of steps in the image generation process")
+    steps: int = Field(
+        ..., description="Number of steps in the image generation process"
+    )
     seed: int = Field(
         ...,
         description="Random seed for generating the image. NOTE: THIS CANNOT BE SET, YOU MUST PASS IN 0, SORRY!",
@@ -136,10 +175,12 @@ class AvatarIncoming(BaseModel):
         use_enum_values = True
 
 
-class AvatarOutgoing(ImageResponseBase): ...
+class AvatarOutgoing(ImageResponseBase):
+    ...
 
 
-class AvatarBase(AvatarIncoming, AvatarOutgoing): ...
+class AvatarBase(AvatarIncoming, AvatarOutgoing):
+    ...
 
 
 # class ScribbleIncoming(ImageGenerationBase):
@@ -165,13 +206,17 @@ class AvatarBase(AvatarIncoming, AvatarOutgoing): ...
 
 
 class UpscaleIncoming(BaseModel):
-    image: Optional[str] = Field(..., description="The base64 encoded image", title="image")
+    image: Optional[str] = Field(
+        ..., description="The base64 encoded image", title="image"
+    )
 
 
-class UpscaleOutgoing(ImageResponseBase): ...
+class UpscaleOutgoing(ImageResponseBase):
+    ...
 
 
-class UpscaleBase(UpscaleIncoming, UpscaleOutgoing): ...
+class UpscaleBase(UpscaleIncoming, UpscaleOutgoing):
+    ...
 
 
 # CLIP EMBEDDINGS
@@ -189,7 +234,8 @@ class ClipEmbeddingsOutgoing(BaseOutgoing):
     )
 
 
-class ClipEmbeddingsBase(ClipEmbeddingsIncoming, ClipEmbeddingsOutgoing): ...
+class ClipEmbeddingsBase(ClipEmbeddingsIncoming, ClipEmbeddingsOutgoing):
+    ...
 
 
 class ChatIncoming(BaseModel):
@@ -201,7 +247,9 @@ class ChatIncoming(BaseModel):
         description="Temperature for text generation.",
     )
 
-    max_tokens: int = Field(500, title="Max Tokens", description="Max tokens for text generation.")
+    max_tokens: int = Field(
+        500, title="Max Tokens", description="Max tokens for text generation."
+    )
 
     seed: int = Field(
         default=...,
@@ -221,21 +269,30 @@ class ChatIncoming(BaseModel):
         use_enum_values = True
 
 
-class ChatOutgoing(BaseModel): ...
+class ChatOutgoing(BaseModel):
+    ...
 
 
-class ChatBase(ChatIncoming, ChatOutgoing): ...
-
+class ChatBase(ChatIncoming, ChatOutgoing):
+    ...
 
 
 class TranslationIncoming(BaseModel):
     input: str = Field(..., description="The input text or audio to be processed")
-    task_string: Literal[tuple(TASK_STRINGS.keys())] = Field(..., description="The task to be performed")
-    source_language: Literal[tuple(TARGET_LANGUAGES.keys())] = Field(..., description="The language of the input")
-    target_language: Literal[tuple(TARGET_LANGUAGES.keys())] = Field(..., description="The desired output language")
+    task_string: Literal[tuple(TASK_STRINGS.keys())] = Field(
+        ..., description="The task to be performed"
+    )
+    source_language: Literal[tuple(TARGET_LANGUAGES.keys())] = Field(
+        ..., description="The language of the input"
+    )
+    target_language: Literal[tuple(TARGET_LANGUAGES.keys())] = Field(
+        ..., description="The desired output language"
+    )
+
 
 class TranslationOutgoing(BaseModel):
     data: str = Field(..., description="The processed output text or audio")
-    
 
-class TranslationBase(TranslationIncoming, TranslationOutgoing): ...
+
+class TranslationBase(TranslationIncoming, TranslationOutgoing):
+    ...

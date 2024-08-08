@@ -37,9 +37,15 @@ def create_key(
     name: The name for the API key.
     """
 
-    async def run(balance: Optional[float], rate_limit_per_minute: Optional[int], name: Optional[str]):
+    async def run(
+        balance: Optional[float],
+        rate_limit_per_minute: Optional[int],
+        name: Optional[str],
+    ):
         if balance is None:
-            balance = float(input("Please enter initial balance for the key (1 credit = 1 image): "))
+            balance = float(
+                input("Please enter initial balance for the key (1 credit = 1 image): ")
+            )
 
         if rate_limit_per_minute is None:
             rate_limit_per_minute = int(input("Please enter rate limit per minute: "))
@@ -152,6 +158,7 @@ def show_key_info(key: str):
     """
     Show information about an API key.
     """
+
     async def run():
         async with aiosqlite.connect(sql.DATABASE_PATH) as conn:
             row = sql.get_api_key_info(conn, key)
@@ -167,7 +174,8 @@ def show_key_info(key: str):
             console.print(table)
 
     anyio.run(run)
-    
+
+
 @cli.command()
 def logs_for_key(key: str):
     """
@@ -226,7 +234,9 @@ def logs_summary():
             for log in logs:
                 log = dict(log)
                 endpoint = log.get(sql.ENDPOINT, "unknown_endpoint")
-                global_endpoint_dict[endpoint] = global_endpoint_dict.get(endpoint, 0) + 1
+                global_endpoint_dict[endpoint] = (
+                    global_endpoint_dict.get(endpoint, 0) + 1
+                )
 
             summary_table.add_row(key, str(total_requests), str(total_credits_used))
 
@@ -241,7 +251,7 @@ def logs_summary():
 
         console.print("Endpoint Breakdown:")
         console.print(breakdown_table)
-    
+
     anyio.run(run)
 
 

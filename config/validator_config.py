@@ -1,7 +1,7 @@
 from pydantic import BaseModel
-from dotenv import load_dotenv
 from typing import Optional
-from core import constants as core_cst
+from config.create_config import CONSTANTS
+from dotenv import load_dotenv
 import os
 import bittensor as bt
 import argparse
@@ -26,19 +26,27 @@ load_dotenv(env_file, verbose=True)
 
 
 class Config(BaseModel):
-    hotkey_name: str = os.getenv(core_cst.HOTKEY_PARAM, "bako_vali")
-    wallet_name: str = os.getenv(core_cst.WALLET_NAME_PARAM, "bako_hot")
-
-    subtensor_network: str = os.getenv(core_cst.SUBTENSOR_NETWORK_PARAM, "finney")
-    subtensor_chainendpoint: Optional[str] = os.getenv(
-        core_cst.SUBTENSOR_CHAINENDPOINT_PARAM, None
+    hotkey_name: str = os.getenv("HOTKEY_PARAM") or CONSTANTS.HOTKEY_PARAM
+    wallet_name: str = os.getenv("WALLET_NAME_PARAM") or CONSTANTS.WALLET_NAME_PARAM
+    subtensor_network: str = (
+        os.getenv("SUBTENSOR_NETWORK_PARAM")
+        or CONSTANTS.SUBTENSOR_NETWORK_PARAM
+        or "finney"
     )
-
-    external_server_url: str = os.getenv(core_cst.EXTERNAL_SERVER_ADDRESS_PARAM, "10.0.3.1")
-
-    api_server_port: Optional[int] = os.getenv(core_cst.API_SERVER_PORT_PARAM, 4269)
-
-    is_validator: bool = True
+    subtensor_chainendpoint: Optional[str] = (
+        os.getenv("SUBTENSOR_CHAINENDPOINT_PARAM")
+        or CONSTANTS.SUBTENSOR_CHAINENDPOINT_PARAM
+        or None
+    )
+    external_server_url: str = (
+        os.getenv("EXTERNAL_SERVER_ADDRESS_PARAM")
+        or CONSTANTS.EXTERNAL_SERVER_ADDRESS_PARAM
+        or "10.0.3.1"
+    )
+    api_server_port: Optional[int] = (
+        os.getenv("API_SERVER_PORT_PARAM") or CONSTANTS.API_SERVER_PORT_PARAM or 4269
+    )
+    is_validator: bool = os.getenv("IS_VALIDATOR") or CONSTANTS.IS_VALIDATOR or False
 
 
 config = Config()

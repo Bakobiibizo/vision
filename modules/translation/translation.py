@@ -11,9 +11,15 @@ from typing import Dict, Tuple, Union
 from transformers import AutoProcessor, SeamlessM4Tv2Model
 from pydub import AudioSegment
 
-from .data_models import TARGET_LANGUAGES, TASK_STRINGS, TranslationRequest, TranslationConfig
+from .data_models import (
+    TARGET_LANGUAGES,
+    TASK_STRINGS,
+    TranslationRequest,
+    TranslationConfig,
+)
 
 translation_config = TranslationConfig()
+
 
 class Translation:
     def __init__(self):
@@ -36,8 +42,12 @@ class Translation:
             - target_language (None): The target language for translation.
         """
         self.translation_config = translation_config
-        self.processor = AutoProcessor.from_pretrained(translation_config.model_name_or_card)
-        self.model = SeamlessM4Tv2Model.from_pretrained(translation_config.model_name_or_card)
+        self.processor = AutoProcessor.from_pretrained(
+            translation_config.model_name_or_card
+        )
+        self.model = SeamlessM4Tv2Model.from_pretrained(
+            translation_config.model_name_or_card
+        )
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model.to(self.device)
         self.target_languages: Dict[str, str] = TARGET_LANGUAGES
@@ -51,11 +61,11 @@ class Translation:
     def _get_language(self, language: str) -> str:
         """
         Function to retrieve the language from the target_languages dictionary.
-        
+
         Parameters:
             self: The Translation object.
             language: A string representing the language to retrieve.
-        
+
         Returns:
             A string representing the language from the target_languages dictionary.
         """
@@ -65,21 +75,23 @@ class Translation:
             logger.error(f"Invalid language: {language} {e}")
             raise ValueError(f"Invalid language: {language}") from e
 
-    def process(self, miner_request: TranslationRequest) -> Tuple[Union[str, None], Union[torch.Tensor, None]]:
+    def process(
+        self, miner_request: TranslationRequest
+    ) -> Tuple[Union[str, None], Union[torch.Tensor, None]]:
         """
-        A function that processes a TranslationRequest object to perform translation tasks. 
-        Retrieves input data, task string, source and target languages, preprocesses the input data, 
-        predicts the output based on the input and languages, and processes the final output. 
+        A function that processes a TranslationRequest object to perform translation tasks.
+        Retrieves input data, task string, source and target languages, preprocesses the input data,
+        predicts the output based on the input and languages, and processes the final output.
         Raises ValueErrors for invalid task strings and missing input data.
 
         Parameters:
             self: The Translation object.
-            miner_request (TranslationRequest): The request object containing input data, task string, 
+            miner_request (TranslationRequest): The request object containing input data, task string,
                 source language, and target language.
 
         Returns:
-            Tuple[Union[str, None], Union[torch.Tensor, None]]: 
-                A tuple containing either a string or None, and either a torch.Tensor or None, 
+            Tuple[Union[str, None], Union[torch.Tensor, None]]:
+                A tuple containing either a string or None, and either a torch.Tensor or None,
                 representing the processed output.
         """
         if "input" in miner_request.data:
@@ -98,28 +110,27 @@ class Translation:
             raise ValueError("No input provided")
         if self.task_string.startswith("speech"):
             try:
-            
                 self.data_input = self._preprocess(self.data_input)
             except Exception as e:
                 logger.error(f"Error preprocessing input: {e}")
                 raise ValueError(f"Error preprocessing input: {e}") from e
-        
+
         output = None
         with torch.no_grad():
             output = self._predict(
                 input=self.data_input,
                 task_str=self.task_strings[self.task_string],
                 src_lang=self.target_languages[self.source_language],
-                tgt_lang=self.target_languages[self.target_language]
+                tgt_lang=self.target_languages[self.target_language],
             )
-            
+
         if self.task_string.endswith("speech"):
             output = self._process_audio_output(output)
         else:
             output = output.encode("utf-8")
 
         return self._process_output(output)
-    
+
     def _preprocess(self, input_data):
         """
         Preprocesses the input data by writing it to a file and returning the file path.
@@ -136,8 +147,10 @@ class Translation:
         with open("modules/translation/in/audio_request.wav", "wb") as f:
             f.write(base64.b64decode(input_data))
         return "modules/translation/in/audio_request.wav"
-    
-    def _process_text_inputs(self, input_data: str, src_lang: str) -> Dict[str, torch.Tensor]:
+
+    def _process_text_inputs(
+        self, input_data: str, src_lang: str
+    ) -> Dict[str, torch.Tensor]:
         """
         Processes text inputs by utilizing the processor to convert input data into torch tensors.
 
@@ -151,7 +164,9 @@ class Translation:
         """
         return self.processor(text=input_data, src_lang=src_lang, return_tensors="pt")
 
-    def _process_audio_input(self, input_data: str, src_lang: str) -> Dict[str, torch.Tensor]:
+    def _process_audio_input(
+        self, input_data: str, src_lang: str
+    ) -> Dict[str, torch.Tensor]:
         """
         Processes the audio input data and returns a dictionary of tensors.
 
@@ -165,9 +180,16 @@ class Translation:
         waveform, sample_rate = torchaudio.load(input_data)
         if sample_rate != 16000:
             waveform = torchaudio.functional.resample(waveform, sample_rate, 16000)
-        return self.processor(audios=waveform.squeeze(), src_lang=src_lang, sampling_rate=16000, return_tensors="pt")
+        return self.processor(
+            audios=waveform.squeeze(),
+            src_lang=src_lang,
+            sampling_rate=16000,
+            return_tensors="pt",
+        )
 
-    def _generate_audio(self, input_data: Dict[str, torch.Tensor], tgt_lang: str) -> torch.Tensor:
+    def _generate_audio(
+        self, input_data: Dict[str, torch.Tensor], tgt_lang: str
+    ) -> torch.Tensor:
         """
         Generate an audio tensor based on the input data and target language.
 
@@ -194,36 +216,40 @@ class Translation:
             str: The generated text.
         """
         input_data = {k: v.to(self.device) for k, v in input_data.items()}
-        output_tokens = self.model.generate(**input_data, tgt_lang=tgt_lang, generate_speech=False)
-        return self.processor.decode(output_tokens[0].tolist()[0], skip_special_tokens=True)
+        output_tokens = self.model.generate(
+            **input_data, tgt_lang=tgt_lang, generate_speech=False
+        )
+        return self.processor.decode(
+            output_tokens[0].tolist()[0], skip_special_tokens=True
+        )
 
     def _predict(self, **kwargs) -> Tuple[Union[str, None], Union[torch.Tensor, None]]:
         """
-        A function that processes input data for prediction. 
-        Retrieves input data, task string, source and target languages, preprocesses the input data based on the task string, 
-        generates output based on the input and languages, and returns the output. 
-        Logs intermediate information for debugging. 
+        A function that processes input data for prediction.
+        Retrieves input data, task string, source and target languages, preprocesses the input data based on the task string,
+        generates output based on the input and languages, and returns the output.
+        Logs intermediate information for debugging.
         Raises errors for processing and prediction failures.
 
         Args:
             **kwargs: A dictionary containing input data, task string, source language, and target language.
 
         Returns:
-            Tuple[Union[str, None], Union[torch.Tensor, None]]: 
-                A tuple containing either a string or None, and either a torch.Tensor or None, 
+            Tuple[Union[str, None], Union[torch.Tensor, None]]:
+                A tuple containing either a string or None, and either a torch.Tensor or None,
                 representing the predicted output.
         """
         try:
-            input_data = kwargs['input']
-            task_str = kwargs['task_str']
-            src_lang = kwargs['src_lang']
-            tgt_lang = kwargs['tgt_lang']
-            
-            if task_str.startswith('s2'):
+            input_data = kwargs["input"]
+            task_str = kwargs["task_str"]
+            src_lang = kwargs["src_lang"]
+            tgt_lang = kwargs["tgt_lang"]
+
+            if task_str.startswith("s2"):
                 input_data = self._process_audio_input(input_data, src_lang)
             else:
                 input_data = self._process_text_inputs(input_data, src_lang)
-                
+
             logger.debug(str(input_data)[:30])
             logger.debug(type(input_data))
             logger.debug(kwargs)
@@ -239,11 +265,11 @@ class Translation:
             logger.debug(output)
             logger.debug(type(output))
             return output
-        
+
         except Exception as e:
             logger.error(f"Error processing translation: {e}")
             raise
-        
+
     def _process_audio_output(self, output: torch.Tensor) -> torch.Tensor:
         """
         Process the audio output tensor and return it as a bytes object.
@@ -264,7 +290,7 @@ class Translation:
             logger.error(f"Error processing audio output: {e}")
             raise ValueError(f"Error processing audio output: {e}") from e
         return buffer.getvalue()
-    
+
     def _process_output(self, output: str) -> str:
         """
         Process the final output to encode it in base64 and decode it to utf-8.
@@ -284,8 +310,10 @@ class Translation:
             raise ValueError(f"Error processing final output: {e}") from e
         return output
 
-    
-def text2text(translation: Translation, miner_request: Optional[TranslationRequest] = None):
+
+def text2text(
+    translation: Translation, miner_request: Optional[TranslationRequest] = None
+):
     """
     Generates a translation of the input text from English to French using the given Translation object.
 
@@ -303,12 +331,19 @@ def text2text(translation: Translation, miner_request: Optional[TranslationReque
         'Bonjour, je m'appelle John Doe.'
     """
     translation_request = miner_request or TranslationRequest(
-        data={"input": "Hello, my name is John Doe.", "task_string": "text2text", "source_language": "English", "target_language": "French"}
+        data={
+            "input": "Hello, my name is John Doe.",
+            "task_string": "text2text",
+            "source_language": "English",
+            "target_language": "French",
+        }
     )
     return translation.process(translation_request)
 
 
-def text2speech(translation: Translation, miner_request: Optional[TranslationRequest] = None):
+def text2speech(
+    translation: Translation, miner_request: Optional[TranslationRequest] = None
+):
     """
     Generates speech from text using the given Translation object.
 
@@ -320,44 +355,63 @@ def text2speech(translation: Translation, miner_request: Optional[TranslationReq
         Union[str, None]: The generated speech as a string, or None if an error occurred.
     """
     translation_request = miner_request or TranslationRequest(
-        data={"input": "Hello, my name is John Doe.", "task_string": "text2speech", "source_language": "English", "target_language": "French"}
+        data={
+            "input": "Hello, my name is John Doe.",
+            "task_string": "text2speech",
+            "source_language": "English",
+            "target_language": "French",
+        }
     )
     return translation.process(translation_request)
 
 
-def speech2text(translation: Translation, miner_request: Optional[TranslationRequest] = None):
+def speech2text(
+    translation: Translation, miner_request: Optional[TranslationRequest] = None
+):
     """
     A function that converts speech input to text using a given Translation object.
-    
+
     Args:
         translation (Translation): The Translation object used for the conversion.
         miner_request (Optional[TranslationRequest], optional): Additional data for the conversion. Defaults to None.
-        
+
     Returns:
         The processed text output.
     """
     translation_request = miner_request or TranslationRequest(
-        data={"input": "modules/translation/in/audio_request.wav", "task_string": "speech2text", "source_language": "English", "target_language": "French"}
+        data={
+            "input": "modules/translation/in/audio_request.wav",
+            "task_string": "speech2text",
+            "source_language": "English",
+            "target_language": "French",
+        }
     )
     return translation.process(translation_request)
 
 
-def speech2speech(translation: Translation, miner_request: Optional[TranslationRequest] = None):
+def speech2speech(
+    translation: Translation, miner_request: Optional[TranslationRequest] = None
+):
     """
     Converts speech input to speech output using a given Translation object.
-    
+
     Args:
         translation (Translation): The Translation object used for the conversion.
         miner_request (Optional[TranslationRequest], optional): Additional data for the conversion. Defaults to None.
-        
+
     Returns:
         The processed speech output.
     """
     translation_request = miner_request or TranslationRequest(
-        data={"input": "modules/translation/in/audio_request.wav", "task_string": "speech2speech", "source_language": "English", "target_language": "French"}
+        data={
+            "input": "modules/translation/in/audio_request.wav",
+            "task_string": "speech2speech",
+            "source_language": "English",
+            "target_language": "French",
+        }
     )
     return translation.process(translation_request)
-    
+
 
 if __name__ == "__main__":
     translation = Translation(TranslationConfig())
@@ -369,5 +423,3 @@ if __name__ == "__main__":
     print(f"text2text: {result}")
     result = text2speech(translation)
     print(f"text2speech: {result}")
-        
-    

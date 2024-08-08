@@ -29,7 +29,7 @@ TASK_TO_VOLUME_TO_REQUESTS_CONVERSION: Dict[Task, float] = {
     Task.jugger_inpainting: 20,
     Task.avatar: 10,
     Task.clip_image_embeddings: 1,
-    Task.translation: 300
+    Task.translation: 300,
 }
 
 
@@ -52,9 +52,13 @@ class UidManager:
         self.capacities_for_tasks = capacities_for_tasks
         self.dendrite = dendrite
         self.validator_hotkey = validator_hotkey
-        self.uid_to_axon: Dict[axon_uid, bto.axon] = {info.uid: info.axon for info in uid_to_uid_info.values()}
+        self.uid_to_axon: Dict[axon_uid, bto.axon] = {
+            info.uid: info.axon for info in uid_to_uid_info.values()
+        }
 
-        self.uid_records_for_tasks: Dict[Task, Dict[axon_uid, UIDRecord]] = collections.defaultdict(dict)
+        self.uid_records_for_tasks: Dict[
+            Task, Dict[axon_uid, UIDRecord]
+        ] = collections.defaultdict(dict)
         self.synthetic_scoring_tasks: List[asyncio.Task] = []
         self.task_to_uid_queue: Dict[Task, query_utils.UIDQueue] = {}
         self.synthetic_data_manager = synthetic_data_manager
@@ -91,7 +95,9 @@ class UidManager:
                         )
                     )
                 )
-        bt.logging.info(f"Starting querying for {len(self.synthetic_scoring_tasks)} tasks 🔥")
+        bt.logging.info(
+            f"Starting querying for {len(self.synthetic_scoring_tasks)} tasks 🔥"
+        )
 
     async def collect_synthetic_scoring_results(self) -> None:
         try:
@@ -121,7 +127,9 @@ class UidManager:
             )
             return
         volume_to_requests_conversion = TASK_TO_VOLUME_TO_REQUESTS_CONVERSION[task]
-        number_of_requests = max(int(volume_to_score / volume_to_requests_conversion), 1)
+        number_of_requests = max(
+            int(volume_to_score / volume_to_requests_conversion), 1
+        )
 
         uid_record = UIDRecord(
             axon_uid=uid,
@@ -133,7 +141,9 @@ class UidManager:
         )
         self.uid_records_for_tasks[task][uid] = uid_record
 
-        delay_between_requests = (core_cst.SCORING_PERIOD_TIME * 0.98) // (number_of_requests)
+        delay_between_requests = (core_cst.SCORING_PERIOD_TIME * 0.98) // (
+            number_of_requests
+        )
 
         i = 0
         tasks_in_progress = []
@@ -142,7 +152,9 @@ class UidManager:
             if i == 0:
                 await asyncio.sleep(delay_between_requests * random.random())
             else:
-                await asyncio.sleep(delay_between_requests * (random.random() * 0.05 + 0.95))
+                await asyncio.sleep(
+                    delay_between_requests * (random.random() * 0.05 + 0.95)
+                )
 
             if i % 100 == 0 and (i > 0 or self.is_testnet):
                 bt.logging.debug(
@@ -151,28 +163,44 @@ class UidManager:
             if uid_record.consumed_volume >= volume_to_score:
                 break
 
-            synthetic_data = await self.synthetic_data_manager.fetch_synthetic_data_for_task(task)
+            synthetic_data = (
+                await self.synthetic_data_manager.fetch_synthetic_data_for_task(task)
+            )
 
             synthetic_synapse = tasks.TASKS_TO_SYNAPSE[task](**synthetic_data)
             stream = isinstance(synthetic_synapse, bt.StreamingSynapse)
-            outgoing_model = getattr(base_models, synthetic_synapse.__class__.__name__ + core_cst.OUTGOING)
+            outgoing_model = getattr(
+                base_models, synthetic_synapse.__class__.__name__ + core_cst.OUTGOING
+            )
 
             if not stream:
                 uid_queue.move_to_end(uid)
                 tasks_in_progress.append(
                     asyncio.create_task(
                         query_utils.query_miner_no_stream(
-                            uid_record, synthetic_synapse, outgoing_model, task, self.dendrite, synthetic_query=True
+                            uid_record,
+                            synthetic_synapse,
+                            outgoing_model,
+                            task,
+                            self.dendrite,
+                            synthetic_query=True,
                         )
                     )
                 )
             else:
                 uid_queue.move_to_end(uid)
                 generator = query_utils.query_miner_stream(
-                    uid_record, synthetic_synapse, outgoing_model, task, self.dendrite, synthetic_query=True
+                    uid_record,
+                    synthetic_synapse,
+                    outgoing_model,
+                    task,
+                    self.dendrite,
+                    synthetic_query=True,
                 )
                 # We need to iterate through the generator to consume it - so the request finishes
-                tasks_in_progress.append(asyncio.create_task(self._consume_generator(generator)))
+                tasks_in_progress.append(
+                    asyncio.create_task(self._consume_generator(generator))
+                )
 
             # Need to make this here so its lowered regardless of the result of the above
             uid_record.synthetic_requests_still_to_make -= 1
@@ -181,13 +209,17 @@ class UidManager:
 
         # NOTE: Do we want to do this semi regularly, to not exceed bandwidth perhaps?
         await asyncio.gather(*tasks_in_progress)
-        bt.logging.info(f"Done synthetic querying for task: {task} and uid: {uid} and volume: {volume}")
+        bt.logging.info(
+            f"Done synthetic querying for task: {task} and uid: {uid} and volume: {volume}"
+        )
 
     async def make_organic_query(
         self, task: Task, stream: bool, synapse: bt.Synapse, outgoing_model: BaseModel
     ) -> Union[utility_models.QueryResult, AsyncGenerator]:  # noqa: F821
         if task not in self.task_to_uid_queue:
-            task_q_to_log = {k.value: len(v.uid_map) for k, v in self.task_to_uid_queue.items()}
+            task_q_to_log = {
+                k.value: len(v.uid_map) for k, v in self.task_to_uid_queue.items()
+            }
             return JSONResponse(
                 content={
                     "error": f"Task {task} not in task_to_uid_queue {task_q_to_log}. This should not happen. Type task: {type(task)}. It should be an enum"
@@ -197,19 +229,24 @@ class UidManager:
         queue = self.task_to_uid_queue[task]
         latest_uid = queue.get_uid_and_move_to_back()
         if latest_uid is None:
-            return JSONResponse(content={"error": f"No UIDs available for this task {task}"}, status_code=500)
+            return JSONResponse(
+                content={"error": f"No UIDs available for this task {task}"},
+                status_code=500,
+            )
         uid_record = self.uid_records_for_tasks[task][latest_uid]
         attempts = 0
 
         if not stream:
             while attempts < 3:
-                query_result: utility_models.QueryResult = await query_utils.query_miner_no_stream(
-                    uid_record,
-                    synapse,
-                    outgoing_model,
-                    task,
-                    dendrite=self.dendrite,
-                    synthetic_query=False,
+                query_result: utility_models.QueryResult = (
+                    await query_utils.query_miner_no_stream(
+                        uid_record,
+                        synapse,
+                        outgoing_model,
+                        task,
+                        dendrite=self.dendrite,
+                        synthetic_query=False,
+                    )
                 )
                 if query_result is None or not query_result.success:
                     attempts += 1
@@ -218,14 +255,22 @@ class UidManager:
         else:
             while attempts < 3:
                 generator = query_utils.query_miner_stream(
-                    uid_record, synapse, outgoing_model, task, self.dendrite, synthetic_query=False
+                    uid_record,
+                    synapse,
+                    outgoing_model,
+                    task,
+                    self.dendrite,
+                    synthetic_query=False,
                 )
                 try:
                     first_chunk = await generator.__anext__()
                     if first_chunk is None:
                         bt.logging.info("First chunk is none")
                         return JSONResponse(
-                            content={"error": f"No UIDs available for this task {task}"}, status_code=500
+                            content={
+                                "error": f"No UIDs available for this task {task}"
+                            },
+                            status_code=500,
                         )
                     query_result = _async_chain(first_chunk, generator)
                     break
@@ -233,7 +278,10 @@ class UidManager:
                     attempts += 1
 
         if attempts == 3:
-            return JSONResponse(content={"error": "Could not process request, mi apologies"}, status_code=500)
+            return JSONResponse(
+                content={"error": "Could not process request, mi apologies"},
+                status_code=500,
+            )
         return query_result
 
     @staticmethod

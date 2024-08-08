@@ -11,6 +11,7 @@ from validation.proxy import dependencies
 
 router = routing.APIRouter(tags=["translation"])
 
+
 @router.post("/translate")
 async def translation(
     body: request_models.TranslationRequest,

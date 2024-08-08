@@ -65,19 +65,27 @@ async def api_key_validator(request: Request, call_next):
     async with aiosqlite.connect(sql.DATABASE_PATH) as conn:
         api_key_info = await sql.get_api_key_info(conn, api_key)
         if api_key_info is None:
-            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content={"detail": "Invalid API key"})
+            return JSONResponse(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                content={"detail": "Invalid API key"},
+            )
         endpoint = request.url.path.split("/")[-1]
         credits_required = ENDPOINT_TO_CREDITS_USED.get(endpoint, 1)
 
-        if api_key_info[sql.BALANCE] is not None and api_key_info[sql.BALANCE] <= credits_required:
+        if (
+            api_key_info[sql.BALANCE] is not None
+            and api_key_info[sql.BALANCE] <= credits_required
+        ):
             return JSONResponse(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS, content={"detail": "Insufficient credits - sorry!"}
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Insufficient credits - sorry!"},
             )
 
         rate_limit_exceeded = await sql.rate_limit_exceeded(conn, api_key_info)
         if rate_limit_exceeded:
             return JSONResponse(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS, content={"detail": "Rate limit exceeded - sorry!"}
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                content={"detail": "Rate limit exceeded - sorry!"},
             )
 
     response = await call_next(request)
@@ -85,7 +93,9 @@ async def api_key_validator(request: Request, call_next):
     if response.status_code == 200:
         async with aiosqlite.connect(sql.DATABASE_PATH) as conn:
             await sql.update_requests_and_credits(conn, api_key_info, credits_required)
-            await sql.log_request(conn, api_key_info, request.url.path, credits_required)
+            await sql.log_request(
+                conn, api_key_info, request.url.path, credits_required
+            )
             await conn.commit()
 
     return response

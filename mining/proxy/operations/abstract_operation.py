@@ -19,15 +19,18 @@ operation_name = "Operation"
 class Operation(core_miner.CoreMiner):
     @staticmethod
     @abc.abstractmethod
-    async def forward(synapse: Any) -> Any: ...
+    async def forward(synapse: Any) -> Any:
+        ...
 
     @staticmethod
     @abc.abstractmethod
-    def blacklist(synapse: Any) -> Tuple[bool, str]: ...
+    def blacklist(synapse: Any) -> Tuple[bool, str]:
+        ...
 
     @staticmethod
     @abc.abstractmethod
-    def priority(synapse: Any) -> float: ...
+    def priority(synapse: Any) -> float:
+        ...
 
 
 def enforce_concurrency_limits(func):
@@ -55,7 +58,9 @@ def enforce_concurrency_limits(func):
                 headers=synapse.to_headers(),
                 content={"message": synapse.axon.status_message},
             )
-        concurrency_group_id = capacity_config.get(task.value, {}).get("concurrency_group_id")
+        concurrency_group_id = capacity_config.get(task.value, {}).get(
+            "concurrency_group_id"
+        )
         if concurrency_group_id is None:
             bt.logging.error(
                 f"Task '{task_value}' not in concurrency groups. You are missing the capacity configuration for this task!"
@@ -75,13 +80,18 @@ def enforce_concurrency_limits(func):
             concurrency_group_id = str(concurrency_group_id)
 
         with core_miner.threading_lock:
-            current_number_of_concurrent_requests = miner_requests_stats.active_requests_for_each_concurrency_group.get(
-                concurrency_group_id, 0
-            )
-            if current_number_of_concurrent_requests < concurrency_groups[concurrency_group_id]:
-                miner_requests_stats.active_requests_for_each_concurrency_group[concurrency_group_id] = (
-                    current_number_of_concurrent_requests + 1
+            current_number_of_concurrent_requests = (
+                miner_requests_stats.active_requests_for_each_concurrency_group.get(
+                    concurrency_group_id, 0
                 )
+            )
+            if (
+                current_number_of_concurrent_requests
+                < concurrency_groups[concurrency_group_id]
+            ):
+                miner_requests_stats.active_requests_for_each_concurrency_group[
+                    concurrency_group_id
+                ] = (current_number_of_concurrent_requests + 1)
             else:
                 synapse.axon.status_code = "429"
                 synapse.axon.status_message = "Enhance your calm bro"

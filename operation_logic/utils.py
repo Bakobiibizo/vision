@@ -19,7 +19,9 @@ import httpx
 import bittensor as bt
 
 
-def crop_images(image_array: List[Image.Image], width: int, height: int) -> List[Image.Image]:
+def crop_images(
+    image_array: List[Image.Image], width: int, height: int
+) -> List[Image.Image]:
     cropped_images = []
     for image in image_array:
         old_width, old_height = image.size
@@ -53,7 +55,9 @@ def pad_image_pil(img: Image.Image, multiple: int, pad_value: int = 255) -> Imag
     return padded_img
 
 
-def pad_image_mask_nd(img: np.ndarray, multiple: int, pad_value: int = 255) -> np.ndarray:
+def pad_image_mask_nd(
+    img: np.ndarray, multiple: int, pad_value: int = 255
+) -> np.ndarray:
     # Calculate the number of rows and columns to be padded
     pad_rows = (multiple - img.shape[0] % multiple) % multiple
     pad_cols = (multiple - img.shape[1] % multiple) % multiple
@@ -240,7 +244,9 @@ def rle_decode_masks(rles: List[List[List[int]]], shape: Tuple[int, int]):
     return [rle_decode(rle, shape) for rle in rles]
 
 
-def get_positive_and_negative_prompts(text_prompts: List[dc.TextPrompt]) -> Tuple[str, str]:
+def get_positive_and_negative_prompts(
+    text_prompts: List[dc.TextPrompt],
+) -> Tuple[str, str]:
     positive_prompt = ""
     negative_prompt = ""
 
@@ -283,7 +289,9 @@ def model_to_printable_dict(model: Optional[BaseModel], max_length: int = 50) ->
             return value
 
 
-async def get_image_from_server(body: BaseModel, post_endpoint: str, timeout: float = 20.0):
+async def get_image_from_server(
+    body: BaseModel, post_endpoint: str, timeout: float = 20.0
+):
     endpoint = miner_config.image_worker_url + post_endpoint
     async with httpx.AsyncClient(timeout=timeout) as client:
         try:
@@ -304,7 +312,10 @@ async def get_image_from_server(body: BaseModel, post_endpoint: str, timeout: fl
                 f"Request error getting an image; An error occurred while making request to {endpoint}: {error}"
             )
 
-async def get_translation_from_server(body: BaseModel, post_endpoint: str, timeout: float = 20.0):
+
+async def get_translation_from_server(
+    body: BaseModel, post_endpoint: str, timeout: float = 20.0
+):
     endpoint = miner_config.translation_worker_url + post_endpoint
     async with httpx.AsyncClient(timeout=timeout) as client:
         try:

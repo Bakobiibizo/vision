@@ -62,7 +62,9 @@ def _connect_to_external_server(hotkey_name: str, external_server_url: str) -> s
         while True:
             connected = _health_check(url)
             if connected:
-                bt.logging.info(f"Health check successful - connected to {name} at {url}.")
+                bt.logging.info(
+                    f"Health check successful - connected to {name} at {url}."
+                )
                 break
             else:
                 bt.logging.info(
@@ -81,22 +83,30 @@ class CoreValidator:
         self.wallet = bt.wallet(config=self.config)
         self.keypair = self.wallet.hotkey
         self.dendrite = bto.dendrite(wallet=self.wallet)
-        self.metagraph: bt.metagraph = self.subtensor.metagraph(netuid=self.config.netuid, lite=True)
+        self.metagraph: bt.metagraph = self.subtensor.metagraph(
+            netuid=self.config.netuid, lite=True
+        )
         self.netuid: int = self.config.netuid if self.config.netuid is not None else 19
         self.task_weights = self._get_task_weights()
 
-        self.is_testnet = validator_config.subtensor_network == "test" or self.netuid != 19
+        self.is_testnet = (
+            validator_config.subtensor_network == "test" or self.netuid != 19
+        )
 
         self.public_hotkey_address = self.keypair.ss58_address
 
-        _my_stake = self.metagraph.S[self.metagraph.hotkeys.index(self.public_hotkey_address)]
+        _my_stake = self.metagraph.S[
+            self.metagraph.hotkeys.index(self.public_hotkey_address)
+        ]
         self.validator_uid = self.metagraph.hotkeys.index(self.public_hotkey_address)
         self._my_prop_of_stake = (_my_stake / sum(self.metagraph.S)).item()
 
         if self.is_testnet:
             self._my_prop_of_stake = 1.0
 
-        _connect_to_external_server(validator_config.hotkey_name, validator_config.external_server_url)
+        _connect_to_external_server(
+            validator_config.hotkey_name, validator_config.external_server_url
+        )
 
         # Make the above class variables instead
 
@@ -107,11 +117,15 @@ class CoreValidator:
         self.incentives: list[float] = []
 
         self.uid_to_uid_info: Dict[int, utility_models.UIDinfo] = {}
-        self.previous_uid_infos: deque[List[utility_models.UIDinfo]] = deque([], maxlen=MAX_PERIODS_TO_LOOK_FOR_SCORE)
+        self.previous_uid_infos: deque[List[utility_models.UIDinfo]] = deque(
+            [], maxlen=MAX_PERIODS_TO_LOOK_FOR_SCORE
+        )
 
         self.low_incentive_uids: Set[int] = set()
 
-        self.capacities_for_tasks: Dict[Task, Dict[int, float]] = defaultdict(lambda: {})  # task -> uid -> capacity
+        self.capacities_for_tasks: Dict[Task, Dict[int, float]] = defaultdict(
+            lambda: {}
+        )  # task -> uid -> capacity
 
         self.threading_lock = threading.Lock()
 
@@ -119,7 +133,11 @@ class CoreValidator:
 
         self.results_store: Dict[str, utility_models.QueryResult] = {}
 
-        self.scorer = Scorer(validator_hotkey=self.keypair.ss58_address, testnet=self.is_testnet, keypair=self.keypair)
+        self.scorer = Scorer(
+            validator_hotkey=self.keypair.ss58_address,
+            testnet=self.is_testnet,
+            keypair=self.keypair,
+        )
         self.weight_setter = WeightSetter(subtensor=self.subtensor, config=self.config)
         self.synthetic_data_manager = SyntheticDataManager(self.validator_uid)
         self.uid_manager = None
@@ -201,7 +219,9 @@ class CoreValidator:
         uids = uid_to_query_task.keys()
         all_capacities = [i[0] for i in responses_and_response_times]
 
-        bt.logging.info(f"Got capacities from {len([i for i in all_capacities if i is not None])} axons!")
+        bt.logging.info(
+            f"Got capacities from {len([i for i in all_capacities if i is not None])} axons!"
+        )
         with self.threading_lock:
             self.capacities_for_tasks = defaultdict(lambda: {})
             for uid, capacities in zip(uids, all_capacities):
@@ -224,10 +244,14 @@ class CoreValidator:
         This really needs to work in a separate runtime environment, or can query an api directly as a first try
         """
         bt.logging.info("Resyncing the metagraph!")
-        await asyncio.to_thread(self.metagraph.sync, subtensor=self.subtensor, lite=True)
+        await asyncio.to_thread(
+            self.metagraph.sync, subtensor=self.subtensor, lite=True
+        )
 
         bt.logging.info("Got the capacities, now storing the info....")
-        incentives_tensor, axon_indexes_tensor = self.metagraph.incentive.sort(descending=True)
+        incentives_tensor, axon_indexes_tensor = self.metagraph.incentive.sort(
+            descending=True
+        )
 
         with self.threading_lock:
             self.uid_to_uid_info = {}
@@ -245,7 +269,9 @@ class CoreValidator:
                     hotkey=hotkeys[i],
                 )
 
-        bt.logging.info("Finished extraction - now to fetch the available capacities for each axon")
+        bt.logging.info(
+            "Finished extraction - now to fetch the available capacities for each axon"
+        )
         await self.fetch_available_capacities_for_each_axon()
 
         return
@@ -257,7 +283,10 @@ class CoreValidator:
                 hotkey = self.uid_to_uid_info[uid].hotkey
                 data_to_post.append(
                     post_stats.MinerCapacitiesPostObject(
-                        validator_hotkey=self.public_hotkey_address, miner_hotkey=hotkey, task=task, volume=volume
+                        validator_hotkey=self.public_hotkey_address,
+                        miner_hotkey=hotkey,
+                        task=task,
+                        volume=volume,
                     )
                 )
         post_data = post_stats.MinerCapacitiesPostBody(data=data_to_post)
@@ -357,7 +386,9 @@ class CoreValidator:
             self._post_uid_records_to_tauvision()
             await self.uid_manager.store_period_scores()
 
-            bt.logging.info(f"Finished scoring for iteration: {iteration}. Now settings weights")
+            bt.logging.info(
+                f"Finished scoring for iteration: {iteration}. Now settings weights"
+            )
             iteration += 1
 
             await self.weight_setter.start_weight_setting_process(
@@ -375,7 +406,9 @@ class CoreValidator:
         self, task: Task, stream: bool, outgoing_model: BaseModel, synapse: bt.Synapse
     ) -> JSONResponse:
         if self.uid_manager is None:
-            return JSONResponse(status_code=500, content={"message": "Server booting, one sec"})
+            return JSONResponse(
+                status_code=500, content={"message": "Server booting, one sec"}
+            )
 
         return await self.uid_manager.make_organic_query(
             task=task, synapse=synapse, stream=stream, outgoing_model=outgoing_model

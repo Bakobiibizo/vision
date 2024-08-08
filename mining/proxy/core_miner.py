@@ -33,11 +33,15 @@ class MinerRequestsStatus:
 
     def decrement_concurrency_group_from_task(self, task: Task) -> None:
         capacity_config = utils.load_capacities(miner_config.hotkey_name)
-        concurrency_group_id = capacity_config.get(task.value, {}).get("concurrency_group_id")
+        concurrency_group_id = capacity_config.get(task.value, {}).get(
+            "concurrency_group_id"
+        )
         if concurrency_group_id is not None:
             concurrency_group_id = str(concurrency_group_id)
-        current_number_of_concurrent_requests = self._active_requests_for_each_concurrency_group.get(
-            concurrency_group_id, 1
+        current_number_of_concurrent_requests = (
+            self._active_requests_for_each_concurrency_group.get(
+                concurrency_group_id, 1
+            )
         )
         self._active_requests_for_each_concurrency_group[concurrency_group_id] = (
             current_number_of_concurrent_requests - 1
@@ -56,7 +60,9 @@ def base_blacklist(synapse: T) -> Tuple[bool, str]:
 
     stake = metagraph.S[metagraph.hotkeys.index(synapse.dendrite.hotkey)]
     if stake < MIN_VALIDATOR_STAKE:
-        bt.logging.trace(f"Blacklisting hotkey, stake too low! {synapse.dendrite.hotkey}")
+        bt.logging.trace(
+            f"Blacklisting hotkey, stake too low! {synapse.dendrite.hotkey}"
+        )
         return True, synapse.dendrite.hotkey
 
     return False, synapse.dendrite.hotkey
@@ -122,7 +128,9 @@ class CoreMiner:
         blacklist: Callable[[Any], Tuple[bool, str]],
         priority: Callable[[Any], Any],
     ) -> None:
-        self.axon.attach(forward_fn=forward, blacklist_fn=blacklist, priority_fn=priority)
+        self.axon.attach(
+            forward_fn=forward, blacklist_fn=blacklist, priority_fn=priority
+        )
 
     def validate_wallet_and_retrieve_uid(self) -> Optional[int]:
         if self.wallet.hotkey.ss58_address not in metagraph.hotkeys:
@@ -132,7 +140,9 @@ class CoreMiner:
             exit()
 
         else:
-            my_hotkey_uid: int = metagraph.hotkeys.index(self.wallet.hotkey.ss58_address)
+            my_hotkey_uid: int = metagraph.hotkeys.index(
+                self.wallet.hotkey.ss58_address
+            )
             bt.logging.info(f"Running miner on uid: {my_hotkey_uid}")
             return my_hotkey_uid
 

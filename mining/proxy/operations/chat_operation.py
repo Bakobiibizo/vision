@@ -48,9 +48,13 @@ class ChatOperation(abstract_operation.Operation):
         elif synapse.model == utility_models.ChatModels.llama_3.value:
             url = miner_config.llama_3_text_worker_url
         else:
-            raise NotImplementedError(f"Model {synapse.model} not implemented for chat operation")
+            raise NotImplementedError(
+                f"Model {synapse.model} not implemented for chat operation"
+            )
         task = tasks.get_task_from_synapse(synapse)
-        text_generator = await chat_logic.chat_logic(base_models.ChatIncoming(**synapse.dict()), url, task)
+        text_generator = await chat_logic.chat_logic(
+            base_models.ChatIncoming(**synapse.dict()), url, task
+        )
 
         text_streamer = partial(_send_text, text_generator)
         return synapse.create_streaming_response(text_streamer)

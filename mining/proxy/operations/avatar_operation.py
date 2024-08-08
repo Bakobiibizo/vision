@@ -15,7 +15,9 @@ T = TypeVar("T", bound=bt.Synapse)
 class AvatarOperation(abstract_operation.Operation):
     @staticmethod
     async def forward(synapse: synapses.Avatar) -> synapses.Avatar:
-        output = await avatar_logic.avatar_logic(base_models.AvatarIncoming(**synapse.dict()))
+        output = await avatar_logic.avatar_logic(
+            base_models.AvatarIncoming(**synapse.dict())
+        )
 
         synapse.init_image = None
 

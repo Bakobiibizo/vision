@@ -39,7 +39,9 @@ class Sleeper:
         elif self.consecutive_errors >= 4:
             sleep_time = 60 * 5
 
-        bt.logging.error(f"Sleeping for {sleep_time} seconds after a http error with the orchestrator server")
+        bt.logging.error(
+            f"Sleeping for {sleep_time} seconds after a http error with the orchestrator server"
+        )
         return sleep_time
 
     async def sleep(self) -> None:
@@ -52,7 +54,9 @@ class Sleeper:
 
 
 class Scorer:
-    def __init__(self, validator_hotkey: str, testnet: bool, keypair: substrateinterface.Keypair) -> None:
+    def __init__(
+        self, validator_hotkey: str, testnet: bool, keypair: substrateinterface.Keypair
+    ) -> None:
         self.am_scoring_results = False
         self.validator_hotkey = validator_hotkey
         self.testnet = testnet
@@ -67,10 +71,14 @@ class Scorer:
 
     async def _score_results(self):
         min_tasks_to_start_scoring = (
-            cst.MINIMUM_TASKS_TO_START_SCORING if self.testnet else cst.MINIMUM_TASKS_TO_START_SCORING_TESTNET
+            cst.MINIMUM_TASKS_TO_START_SCORING
+            if self.testnet
+            else cst.MINIMUM_TASKS_TO_START_SCORING_TESTNET
         )
         while True:
-            tasks_and_number_of_results = await db_manager.get_tasks_and_number_of_results()
+            tasks_and_number_of_results = (
+                await db_manager.get_tasks_and_number_of_results()
+            )
             total_tasks_stored = sum(tasks_and_number_of_results.values())
 
             if total_tasks_stored < min_tasks_to_start_scoring:
@@ -79,7 +87,9 @@ class Scorer:
 
             else:
                 task_to_score = random.choices(
-                    list(tasks_and_number_of_results.keys()), weights=list(tasks_and_number_of_results.values()), k=1
+                    list(tasks_and_number_of_results.keys()),
+                    weights=list(tasks_and_number_of_results.values()),
+                    k=1,
                 )[0]
 
                 await self._check_scores_for_task(Task(task_to_score))
@@ -89,9 +99,13 @@ class Scorer:
         i = 0
         bt.logging.info(f"Checking some results for task {task}")
         while i < cst.MAX_RESULTS_TO_SCORE_FOR_TASK:
-            data_and_hotkey = await db_manager.select_and_delete_task_result(task)  # noqa
+            data_and_hotkey = await db_manager.select_and_delete_task_result(
+                task
+            )  # noqa
             if data_and_hotkey is None:
-                bt.logging.warning(f"No data left to score for task {task}; iteration {i}")
+                bt.logging.warning(
+                    f"No data left to score for task {task}; iteration {i}"
+                )
                 return
             checking_data, miner_hotkey = data_and_hotkey
             results, synthetic_query, synapse_dict_str = (
@@ -131,7 +145,8 @@ class Scorer:
                                 j += 1
                             else:
                                 bt.logging.error(
-                                    "Checking server seems broke, please check!" f"response: {response.json()}"
+                                    "Checking server seems broke, please check!"
+                                    f"response: {response.json()}"
                                 )
                                 await self.sleeper.sleep()
                                 break
@@ -142,7 +157,9 @@ class Scorer:
                     # Ping the check-task endpoint until the task is complete
                     while True:
                         await asyncio.sleep(3)
-                        task_response = await client.get(f"{validator_config.external_server_url}check-task/{task_id}")
+                        task_response = await client.get(
+                            f"{validator_config.external_server_url}check-task/{task_id}"
+                        )
                         task_response.raise_for_status()
                         task_response_json = task_response.json()
 
@@ -156,11 +173,17 @@ class Scorer:
                                 await self.sleeper.sleep()
                             break
                 except httpx.HTTPStatusError as stat_err:
-                    bt.logging.error(f"When scoring, HTTP status error occurred: {stat_err}")
+                    bt.logging.error(
+                        f"When scoring, HTTP status error occurred: {stat_err}"
+                    )
                     await self.sleeper.sleep()
                     continue
 
-                except (httpx.RemoteProtocolError, httpx.ReadError, httpx.ReadTimeout) as read_err:
+                except (
+                    httpx.RemoteProtocolError,
+                    httpx.ReadError,
+                    httpx.ReadTimeout,
+                ) as read_err:
                     bt.logging.error(f"When scoring, Read timeout occurred: {read_err}")
                     await self.sleeper.sleep()
                     continue
@@ -179,13 +202,19 @@ class Scorer:
                 task_result = task_response_json.get("result", {})
                 axon_scores = task_result.get("axon_scores", {})
                 if axon_scores is None:
-                    bt.logging.error(f"AXon scores is none; found in the response josn: {task_response_json}")
+                    bt.logging.error(
+                        f"AXon scores is none; found in the response josn: {task_response_json}"
+                    )
                     continue
             except (json.JSONDecodeError, KeyError) as parse_err:
-                bt.logging.error(f"Error occurred when parsing the response: {parse_err}")
+                bt.logging.error(
+                    f"Error occurred when parsing the response: {parse_err}"
+                )
                 continue
 
-            volume = work_and_speed_functions.calculate_work(task=task, result=results_json, synapse=synapse)
+            volume = work_and_speed_functions.calculate_work(
+                task=task, result=results_json, synapse=synapse
+            )
             speed_scoring_factor = work_and_speed_functions.calculate_speed_modifier(
                 task=task, result=results_json, synapse=synapse
             )
@@ -203,7 +232,9 @@ class Scorer:
                     validator_hotkey=self.validator_hotkey,  # fix
                     miner_hotkey=miner_hotkey,
                     synthetic_query=synthetic_query,
-                    response_time=results_json["response_time"] if quality_score != 0 else None,
+                    response_time=results_json["response_time"]
+                    if quality_score != 0
+                    else None,
                     volume=volume,
                     speed_scoring_factor=speed_scoring_factor,
                 )

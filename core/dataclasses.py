@@ -2,6 +2,8 @@ from typing import Optional
 
 from bittensor.chain_data import AxonInfo
 from pydantic import BaseModel
+from config.create_config import constant_obj
+from enum import Enum
 
 
 class Model(BaseModel):

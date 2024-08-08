@@ -10,9 +10,15 @@ from validation.proxy.work_and_speed_functions import TaskType
 
 
 def calculate_volume_for_task(
-    task: Task, concurrent_requests_each_gpu_server_can_handle: float, gpus_with_server_on: float = 1
+    task: Task,
+    concurrent_requests_each_gpu_server_can_handle: float,
+    gpus_with_server_on: float = 1,
 ) -> int:
-    vol_in_seconds = gpus_with_server_on * concurrent_requests_each_gpu_server_can_handle * core_cst.SCORING_PERIOD_TIME
+    vol_in_seconds = (
+        gpus_with_server_on
+        * concurrent_requests_each_gpu_server_can_handle
+        * core_cst.SCORING_PERIOD_TIME
+    )
 
     task_config = tasks.get_task_config(task)
 
@@ -37,14 +43,30 @@ def calculate_volume_for_task(
 
 
 # Here are some examples
-calculate_volume_for_task(Task.chat_llama_3, concurrent_requests_each_gpu_server_can_handle=20, gpus_with_server_on=1)
-
-calculate_volume_for_task(Task.chat_llama_3, concurrent_requests_each_gpu_server_can_handle=20, gpus_with_server_on=1)
-calculate_volume_for_task(Task.chat_mixtral, concurrent_requests_each_gpu_server_can_handle=10, gpus_with_server_on=1)
+calculate_volume_for_task(
+    Task.chat_llama_3,
+    concurrent_requests_each_gpu_server_can_handle=20,
+    gpus_with_server_on=1,
+)
 
 calculate_volume_for_task(
-    Task.playground_text_to_image, concurrent_requests_each_gpu_server_can_handle=1, gpus_with_server_on=1
+    Task.chat_llama_3,
+    concurrent_requests_each_gpu_server_can_handle=20,
+    gpus_with_server_on=1,
 )
 calculate_volume_for_task(
-    Task.proteus_text_to_image, concurrent_requests_each_gpu_server_can_handle=1, gpus_with_server_on=1
+    Task.chat_mixtral,
+    concurrent_requests_each_gpu_server_can_handle=10,
+    gpus_with_server_on=1,
+)
+
+calculate_volume_for_task(
+    Task.playground_text_to_image,
+    concurrent_requests_each_gpu_server_can_handle=1,
+    gpus_with_server_on=1,
+)
+calculate_volume_for_task(
+    Task.proteus_text_to_image,
+    concurrent_requests_each_gpu_server_can_handle=1,
+    gpus_with_server_on=1,
 )

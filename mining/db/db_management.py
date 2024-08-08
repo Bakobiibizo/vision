@@ -18,7 +18,7 @@ DEFUALT_CONCURRENCY_GROUPS = {
     Task.jugger_inpainting: 3,
     Task.clip_image_embeddings: 3,  # disabled clip for now
     Task.avatar: 3,
-    Task.translation: 2
+    Task.translation: 2,
 }
 
 DEFAULT_CONCURRENCY_GROUP_VALUES = {1: 7, 2: 7, 3: 1}
@@ -69,7 +69,10 @@ class DatabaseManager:
                         miner_hotkey,
                     ),
                 )
-        for concurrency_group_id, concurrency_group_limit in DEFAULT_CONCURRENCY_GROUP_VALUES.items():
+        for (
+            concurrency_group_id,
+            concurrency_group_limit,
+        ) in DEFAULT_CONCURRENCY_GROUP_VALUES.items():
             cursor.execute(
                 sql.search_concurrency_group_config(),
                 (concurrency_group_id,),
@@ -96,7 +99,10 @@ class DatabaseManager:
         results = {}
         for row in rows:
             task, volume, concurrency_group_id = row
-            results[task] = {"volume": volume, "concurrency_group_id": concurrency_group_id}
+            results[task] = {
+                "volume": volume,
+                "concurrency_group_id": concurrency_group_id,
+            }
         return results
 
 

@@ -16,7 +16,9 @@ T = TypeVar("T", bound=bt.Synapse)
 class ClipEmbeddingsOperation(abstract_operation.Operation):
     @staticmethod
     async def forward(synapse: synapses.ClipEmbeddings) -> synapses.ClipEmbeddings:
-        output = await clip_embeddings_logic.clip_embeddings_logic(base_models.ClipEmbeddingsIncoming(**synapse.dict()))
+        output = await clip_embeddings_logic.clip_embeddings_logic(
+            base_models.ClipEmbeddingsIncoming(**synapse.dict())
+        )
 
         synapse.image_b64s = None
 

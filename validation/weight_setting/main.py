@@ -40,7 +40,9 @@ class WeightSetter:
         if processed_weight_uids is None:
             bt.logging.warning("Scores all zero, not setting weights!")
             return
-        await asyncio.to_thread(self._set_weights, wallet, netuid, processed_weight_uids, processed_weights)
+        await asyncio.to_thread(
+            self._set_weights, wallet, netuid, processed_weight_uids, processed_weights
+        )
 
     def _get_processed_weights_and_uids(
         self,
@@ -49,7 +51,9 @@ class WeightSetter:
         total_hotkey_scores: Dict[str, float],
         uid_to_uid_info: Dict[axon_uid, utility_models.UIDinfo],
     ) -> Union[Tuple[Dict[str, float], List[axon_uid]], Tuple[None, None]]:
-        hotkey_to_uid = {uid_info.hotkey: uid_info.uid for uid_info in uid_to_uid_info.values()}
+        hotkey_to_uid = {
+            uid_info.hotkey: uid_info.uid for uid_info in uid_to_uid_info.values()
+        }
         weights_tensor = torch.zeros_like(metagraph.S, dtype=torch.float32)
         for hotkey, score in total_hotkey_scores.items():
             uid = hotkey_to_uid[hotkey]
@@ -77,13 +81,17 @@ class WeightSetter:
         processed_weights: bt.Tensor,
         processed_weight_uids: bt.Tensor,
     ) -> None:
-        bt.logging.info(f"Weights set to: {processed_weights} for uids: {processed_weight_uids}")
+        bt.logging.info(
+            f"Weights set to: {processed_weights} for uids: {processed_weight_uids}"
+        )
 
         NUM_TIMES_TO_SET_WEIGHTS = 3
         # The reason we do this is because wait_for_inclusion & wait_for_finalization
         # Cause the whole API server to crash.
         # So we have no choice but to set weights
-        bt.logging.info(f"\n\nSetting weights {NUM_TIMES_TO_SET_WEIGHTS} times without inclusion or finalization\n\n")
+        bt.logging.info(
+            f"\n\nSetting weights {NUM_TIMES_TO_SET_WEIGHTS} times without inclusion or finalization\n\n"
+        )
         for i in range(NUM_TIMES_TO_SET_WEIGHTS):
             bt.logging.info(f"Setting weights, iteration number: {i+1}")
             success = self.subtensor.set_weights(

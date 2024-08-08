@@ -330,11 +330,15 @@ class axon:
         config = copy.deepcopy(config)
         config.axon.ip = ip or config.axon.get("ip", bittensor.defaults.axon.ip)
         config.axon.port = port or config.axon.get("port", bittensor.defaults.axon.port)
-        config.axon.external_ip = external_ip or config.axon.get("external_ip", bittensor.defaults.axon.external_ip)
+        config.axon.external_ip = external_ip or config.axon.get(
+            "external_ip", bittensor.defaults.axon.external_ip
+        )
         config.axon.external_port = external_port or config.axon.get(
             "external_port", bittensor.defaults.axon.external_port
         )
-        config.axon.max_workers = max_workers or config.axon.get("max_workers", bittensor.defaults.axon.max_workers)
+        config.axon.max_workers = max_workers or config.axon.get(
+            "max_workers", bittensor.defaults.axon.max_workers
+        )
         axon.check_config(config)
         self.config = config
 
@@ -351,13 +355,17 @@ class axon:
             else bittensor.utils.networking.get_external_ip()
         )
         self.external_port = (
-            self.config.axon.external_port if self.config.axon.external_port is not None else self.config.axon.port
+            self.config.axon.external_port
+            if self.config.axon.external_port is not None
+            else self.config.axon.port
         )
         self.full_address = str(self.config.axon.ip) + ":" + str(self.config.axon.port)
         self.started = False
 
         # Build middleware
-        self.thread_pool = bittensor.PriorityThreadPoolExecutor(max_workers=self.config.axon.max_workers)
+        self.thread_pool = bittensor.PriorityThreadPoolExecutor(
+            max_workers=self.config.axon.max_workers
+        )
         self.nonces = {}
 
         # Request default functions.
@@ -371,7 +379,9 @@ class axon:
         # Instantiate FastAPI
         self.app = FastAPI()
         log_level = "trace" if bittensor.logging.__trace_on__ else "critical"
-        self.fast_config = uvicorn.Config(self.app, host="0.0.0.0", port=self.config.axon.port, log_level=log_level)
+        self.fast_config = uvicorn.Config(
+            self.app, host="0.0.0.0", port=self.config.axon.port, log_level=log_level
+        )
         self.fast_server = FastAPIThreadedServer(config=self.fast_config)
         self.router = APIRouter()
         self.app.include_router(self.router)
@@ -383,7 +393,9 @@ class axon:
         def ping(r: bittensor.Synapse) -> bittensor.Synapse:
             return r
 
-        self.attach(forward_fn=ping, verify_fn=None, blacklist_fn=None, priority_fn=None)
+        self.attach(
+            forward_fn=ping, verify_fn=None, blacklist_fn=None, priority_fn=None
+        )
 
     def attach(
         self,
@@ -453,10 +465,14 @@ class axon:
 
         # Assert 'forward_fn' has exactly one argument
         forward_sig = signature(forward_fn)
-        assert len(list(forward_sig.parameters)) == 1, "The passed function must have exactly one argument"
+        assert (
+            len(list(forward_sig.parameters)) == 1
+        ), "The passed function must have exactly one argument"
 
         # Obtain the class of the first argument of 'forward_fn'
-        request_class = forward_sig.parameters[list(forward_sig.parameters)[0]].annotation
+        request_class = forward_sig.parameters[
+            list(forward_sig.parameters)[0]
+        ].annotation
 
         # Assert that the first argument of 'forward_fn' is a subclass of 'bittensor.Synapse'
         assert issubclass(
@@ -464,7 +480,9 @@ class axon:
         ), "The argument of forward_fn must inherit from bittensor.Synapse"
 
         # Obtain the class name of the first argument of 'forward_fn'
-        request_name = forward_sig.parameters[list(forward_sig.parameters)[0]].annotation.__name__
+        request_name = forward_sig.parameters[
+            list(forward_sig.parameters)[0]
+        ].annotation.__name__
 
         # Add the endpoint to the router, making it available on both GET and POST methods
         self.router.add_api_route(
@@ -481,7 +499,9 @@ class axon:
                 Parameter(
                     "synapse",
                     Parameter.POSITIONAL_OR_KEYWORD,
-                    annotation=forward_sig.parameters[list(forward_sig.parameters)[0]].annotation,
+                    annotation=forward_sig.parameters[
+                        list(forward_sig.parameters)[0]
+                    ].annotation,
                 )
             ],
             return_annotation=Tuple[bool, str],
@@ -491,7 +511,9 @@ class axon:
                 Parameter(
                     "synapse",
                     Parameter.POSITIONAL_OR_KEYWORD,
-                    annotation=forward_sig.parameters[list(forward_sig.parameters)[0]].annotation,
+                    annotation=forward_sig.parameters[
+                        list(forward_sig.parameters)[0]
+                    ].annotation,
                 )
             ],
             return_annotation=float,
@@ -501,7 +523,9 @@ class axon:
                 Parameter(
                     "synapse",
                     Parameter.POSITIONAL_OR_KEYWORD,
-                    annotation=forward_sig.parameters[list(forward_sig.parameters)[0]].annotation,
+                    annotation=forward_sig.parameters[
+                        list(forward_sig.parameters)[0]
+                    ].annotation,
                 )
             ],
             return_annotation=None,
@@ -517,17 +541,25 @@ class axon:
         if priority_fn:
             assert (
                 signature(priority_fn) == priority_sig
-            ), "The priority_fn function must have the signature: priority( synapse: {} ) -> float".format(request_name)
+            ), "The priority_fn function must have the signature: priority( synapse: {} ) -> float".format(
+                request_name
+            )
         if verify_fn:
             assert (
                 signature(verify_fn) == verify_sig
-            ), "The verify_fn function must have the signature: verify( synapse: {} ) -> None".format(request_name)
+            ), "The verify_fn function must have the signature: verify( synapse: {} ) -> None".format(
+                request_name
+            )
 
         # Store functions in appropriate attribute dictionaries
-        self.forward_class_types[request_name] = forward_sig.parameters[list(forward_sig.parameters)[0]].annotation
+        self.forward_class_types[request_name] = forward_sig.parameters[
+            list(forward_sig.parameters)[0]
+        ].annotation
         self.blacklist_fns[request_name] = blacklist_fn
         self.priority_fns[request_name] = priority_fn
-        self.verify_fns[request_name] = verify_fn or self.default_verify  # Use 'default_verify' if 'verify_fn' is None
+        self.verify_fns[request_name] = (
+            verify_fn or self.default_verify
+        )  # Use 'default_verify' if 'verify_fn' is None
         self.forward_fns[request_name] = forward_fn
 
         # Parse required hash fields from the forward function protocol defaults
@@ -686,7 +718,9 @@ class axon:
         Raises:
             AssertionError: If the axon or external ports are not in range [1024, 65535]
         """
-        assert config.axon.port > 1024 and config.axon.port < 65535, "Axon port must be in range [1024, 65535]"
+        assert (
+            config.axon.port > 1024 and config.axon.port < 65535
+        ), "Axon port must be in range [1024, 65535]"
 
         assert config.axon.external_port is None or (
             config.axon.external_port > 1024 and config.axon.external_port < 65535
@@ -778,7 +812,9 @@ class axon:
         self.started = False
         return self
 
-    def serve(self, netuid: int, subtensor: bittensor.subtensor = None) -> "bittensor.axon":
+    def serve(
+        self, netuid: int, subtensor: bittensor.subtensor = None
+    ) -> "bittensor.axon":
         """
         Serves the Axon on the specified subtensor connection using the configured wallet. This method
         registers the Axon with a specific subnet within the Bittensor network, identified by the ``netuid``.
@@ -876,7 +912,9 @@ class axon:
                 raise Exception("Nonce is too small")
 
         if not keypair.verify(message, synapse.dendrite.signature):
-            raise Exception(f"Signature mismatch with {message} and {synapse.dendrite.signature}")
+            raise Exception(
+                f"Signature mismatch with {message} and {synapse.dendrite.signature}"
+            )
 
         # Success
         self.nonces[endpoint_key] = synapse.dendrite.nonce
@@ -890,7 +928,9 @@ def create_error_response(synapse: bittensor.Synapse):
     )
 
 
-def log_and_handle_error(synapse: bittensor.synapse, exception: Exception, status_code: int, start_time: int):
+def log_and_handle_error(
+    synapse: bittensor.synapse, exception: Exception, status_code: int, start_time: int
+):
     # Display the traceback for user clarity.
     bittensor.logging.trace(f"Forward exception: {traceback.format_exc()}")
 
@@ -944,7 +984,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.axon = axon
 
-    async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Request:
+    async def dispatch(
+        self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Request:
         """
         Asynchronously processes incoming HTTP requests and returns the corresponding responses. This
         method acts as the central processing unit of the AxonMiddleware, handling each step in the
@@ -1083,7 +1125,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
         try:
             request_name = request.url.path.split("/")[1]
         except:  # noqa: E722
-            raise InvalidRequestNameError(f"Improperly formatted request. Could not parser request {request.url.path}.")
+            raise InvalidRequestNameError(
+                f"Improperly formatted request. Could not parser request {request.url.path}."
+            )
 
         # Creates a synapse instance from the headers using the appropriate forward class type
         # based on the request name obtained from the URL path.
@@ -1113,7 +1157,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
         )
 
         # Fills the dendrite information into the synapse.
-        synapse.dendrite.__dict__.update({"port": str(request.client.port), "ip": str(request.client.host)})
+        synapse.dendrite.__dict__.update(
+            {"port": str(request.client.port), "ip": str(request.client.host)}
+        )
 
         # Signs the synapse from the axon side using the wallet hotkey.
         message = f"{synapse.axon.nonce}.{synapse.dendrite.hotkey}.{synapse.axon.hotkey}.{synapse.axon.uuid}"
@@ -1153,7 +1199,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
                 # We attempt to run the verification function using the synapse instance
                 # created from the request. If this function runs without throwing an exception,
                 # it means that the verification was successful.
-                await verify_fn(synapse) if inspect.iscoroutinefunction(verify_fn) else verify_fn(synapse)
+                await verify_fn(synapse) if inspect.iscoroutinefunction(
+                    verify_fn
+                ) else verify_fn(synapse)
             except Exception as e:
                 # If there was an exception during the verification process, we log that
                 # there was a verification exception.
@@ -1197,7 +1245,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
             # We execute the blacklist checking function using the synapse instance as input.
             # If the function returns True, it means that the key or identifier is blacklisted.
             blacklisted, reason = (
-                await blacklist_fn(synapse) if inspect.iscoroutinefunction(blacklist_fn) else blacklist_fn(synapse)
+                await blacklist_fn(synapse)
+                if inspect.iscoroutinefunction(blacklist_fn)
+                else blacklist_fn(synapse)
             )
             if blacklisted:
                 # We log that the key or identifier is blacklisted.
@@ -1227,7 +1277,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
         # to the request's name (synapse name).
         priority_fn = self.axon.priority_fns.get(synapse.name)
 
-        async def submit_task(executor: bittensor.threadpool, priority: float) -> Tuple[float, Any]:
+        async def submit_task(
+            executor: bittensor.threadpool, priority: float
+        ) -> Tuple[float, Any]:
             """
             Submits the given priority function to the specified executor for asynchronous execution.
             The function will run in the provided executor and return the priority value along with the result.
@@ -1249,7 +1301,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
             try:
                 # Execute the priority function and get the priority value.
                 priority = (
-                    await priority_fn(synapse) if inspect.iscoroutinefunction(priority_fn) else priority_fn(synapse)
+                    await priority_fn(synapse)
+                    if inspect.iscoroutinefunction(priority_fn)
+                    else priority_fn(synapse)
                 )
 
                 # Submit the task to the thread pool for execution with the given priority.
@@ -1310,7 +1364,9 @@ class AxonMiddleware(BaseHTTPMiddleware):
         # Return the starlet response
         return response
 
-    async def postprocess(self, synapse: bittensor.Synapse, response: Response, start_time: float) -> Response:
+    async def postprocess(
+        self, synapse: bittensor.Synapse, response: Response, start_time: float
+    ) -> Response:
         """
         Performs the final processing on the response before sending it back to the client. This method
         updates the response headers and logs the end of the request processing.

@@ -9,7 +9,9 @@ from mining.proxy.core_miner import miner_requests_stats
 POST_ENDPOINT = "generate_text"
 
 
-async def stream_text_from_server(body: base_models.ChatIncoming, url: str, task: Task) -> AsyncGenerator:
+async def stream_text_from_server(
+    body: base_models.ChatIncoming, url: str, task: Task
+) -> AsyncGenerator:
     text_endpoint = url + POST_ENDPOINT
     async with httpx.AsyncClient(timeout=90) as client:  # noqa
         async with client.stream("POST", text_endpoint, json=body.dict()) as resp:
@@ -29,11 +31,15 @@ async def stream_text_from_server(body: base_models.ChatIncoming, url: str, task
 
                         yield f"data: {data}\n\n"
                 except Exception as e:
-                    bt.logging.error(f"Error in streaming text from the server: {e}. Original chunk: {chunk}")
+                    bt.logging.error(
+                        f"Error in streaming text from the server: {e}. Original chunk: {chunk}"
+                    )
         miner_requests_stats.decrement_concurrency_group_from_task(task)
 
 
-async def chat_logic(body: base_models.ChatIncoming, url: str, task: Task) -> AsyncGenerator:
+async def chat_logic(
+    body: base_models.ChatIncoming, url: str, task: Task
+) -> AsyncGenerator:
     """Add gpu potential"""
 
     text_generator = stream_text_from_server(body, url, task)

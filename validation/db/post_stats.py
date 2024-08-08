@@ -62,10 +62,14 @@ async def post_to_tauvision(
                 data=json.dumps(data_to_post),
                 headers=headers,
             )
-            bt.logging.debug(f"Resp status code from tauvision: {resp.status_code} for post type {data_type_to_post}")
+            bt.logging.debug(
+                f"Resp status code from tauvision: {resp.status_code} for post type {data_type_to_post}"
+            )
             return resp
         except Exception as e:
-            bt.logging.error(f"Error when posting to tauvision to store data for {data_type_to_post}: {repr(e)}")
+            bt.logging.error(
+                f"Error when posting to tauvision to store data for {data_type_to_post}: {repr(e)}"
+            )
 
 
 class RewardDataPostBody(RewardData):

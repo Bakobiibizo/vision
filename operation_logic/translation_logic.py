@@ -9,6 +9,7 @@ POST_ENDPOINT = "translation"
 
 translation_module = Translation()
 
+
 async def translation_logic(
     body: base_models.TranslationIncoming,
 ) -> base_models.TranslationOutgoing:
@@ -16,9 +17,14 @@ async def translation_logic(
 
     output = base_models.TranslationOutgoing()
 
-    translation_response_body = await operation_utils.get_translation_from_server(body, POST_ENDPOINT, timeout=15)
+    translation_response_body = await operation_utils.get_translation_from_server(
+        body, POST_ENDPOINT, timeout=15
+    )
     # If safe for work but still no translations, something went wrong probably
-    if translation_response_body is None or translation_response_body.translation_b64 is None:
+    if (
+        translation_response_body is None
+        or translation_response_body.translation_b64 is None
+    ):
         output.error_message = "Some error from the generation :/"
         return output
     else:
@@ -30,4 +36,3 @@ async def translation_logic(
     output.translation_hashes = translation_response_body.translation_hashes
 
     return output
-    

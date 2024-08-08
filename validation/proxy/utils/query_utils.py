@@ -41,7 +41,11 @@ class UIDQueue:
 def get_formatted_response(
     resulting_synapse: base_models.BaseSynapse, initial_synapse: bt.Synapse
 ) -> Optional[BaseModel]:
-    if resulting_synapse and resulting_synapse.dendrite.status_code == 200 and resulting_synapse != initial_synapse:
+    if (
+        resulting_synapse
+        and resulting_synapse.dendrite.status_code == 200
+        and resulting_synapse != initial_synapse
+    ):
         formatted_response = _extract_response(resulting_synapse, initial_synapse)
         return formatted_response
     else:
@@ -106,7 +110,9 @@ def _load_sse_jsons(chunk: str) -> Union[List[Dict[str, Any]], Dict[str, str]]:
     return []
 
 
-def _get_formatted_payload(content: str, first_message: bool, add_finish_reason: bool = False) -> str:
+def _get_formatted_payload(
+    content: str, first_message: bool, add_finish_reason: bool = False
+) -> str:
     delta_payload = {"content": content}
     if first_message:
         delta_payload["role"] = "assistant"
@@ -134,7 +140,11 @@ async def query_miner_stream(
 
     time1 = time.time()
     text_generator = await query_individual_axon_stream(
-        synapse=synapse, dendrite=dendrite, axon=axon, axon_uid=axon_uid, log_requests_and_responses=False
+        synapse=synapse,
+        dendrite=dendrite,
+        axon=axon,
+        axon_uid=axon_uid,
+        log_requests_and_responses=False,
     )
     text_jsons = []
     status_code = 200
@@ -181,14 +191,21 @@ async def query_miner_stream(
             error_message=error_message,
         )
 
-        create_scoring_adjustment_task(query_result, synapse, uid_record, synthetic_query)
+        create_scoring_adjustment_task(
+            query_result, synapse, uid_record, synthetic_query
+        )
 
 
 def create_scoring_adjustment_task(
-    query_result: utility_models.QueryResult, synapse: bt.Synapse, uid_record: UIDRecord, synthetic_query: bool
+    query_result: utility_models.QueryResult,
+    synapse: bt.Synapse,
+    uid_record: UIDRecord,
+    synthetic_query: bool,
 ):
     asyncio.create_task(
-        scoring_utils.adjust_uid_record_from_result(query_result, synapse, uid_record, synthetic_query=synthetic_query)
+        scoring_utils.adjust_uid_record_from_result(
+            query_result, synapse, uid_record, synthetic_query=synthetic_query
+        )
     )
 
 
@@ -203,7 +220,11 @@ async def query_miner_no_stream(
     axon_uid = uid_record.axon_uid
     axon = uid_record.axon
     resulting_synapse, response_time = await query_individual_axon(
-        synapse=synapse, dendrite=dendrite, axon=axon, axon_uid=axon_uid, log_requests_and_responses=False
+        synapse=synapse,
+        dendrite=dendrite,
+        axon=axon,
+        axon_uid=axon_uid,
+        log_requests_and_responses=False,
     )
 
     # IDE doesn't recognise the above typehints, idk why? :-(
@@ -223,7 +244,9 @@ async def query_miner_no_stream(
             status_code=resulting_synapse.axon.status_code,
             error_message=resulting_synapse.error_message,
         )
-        create_scoring_adjustment_task(query_result, synapse, uid_record, synthetic_query)
+        create_scoring_adjustment_task(
+            query_result, synapse, uid_record, synthetic_query
+        )
         return query_result
 
     elif task == Task.avatar:
@@ -237,7 +260,9 @@ async def query_miner_no_stream(
             status_code=resulting_synapse.axon.status_code,
             error_message=resulting_synapse.error_message,
         )
-        create_scoring_adjustment_task(query_result, synapse, uid_record, synthetic_query)
+        create_scoring_adjustment_task(
+            query_result, synapse, uid_record, synthetic_query
+        )
 
     else:
         query_result = utility_models.QueryResult(
@@ -250,18 +275,22 @@ async def query_miner_no_stream(
             success=False,
             miner_hotkey=uid_record.hotkey,
         )
-        create_scoring_adjustment_task(query_result, synapse, uid_record, synthetic_query)
+        create_scoring_adjustment_task(
+            query_result, synapse, uid_record, synthetic_query
+        )
         return query_result
 
 
-def _extract_response(resulting_synapse: base_models.BaseSynapse, outgoing_model: BaseModel) -> Optional[BaseModel]:
+def _extract_response(
+    resulting_synapse: base_models.BaseSynapse, outgoing_model: BaseModel
+) -> Optional[BaseModel]:
     try:
         formatted_response = outgoing_model(**resulting_synapse.dict())
 
         # If we're expecting a result (i.e. not nsfw), then try to deserialize
-        if (hasattr(formatted_response, "is_nsfw") and not formatted_response.is_nsfw) or not hasattr(
-            formatted_response, "is_nsfw"
-        ):
+        if (
+            hasattr(formatted_response, "is_nsfw") and not formatted_response.is_nsfw
+        ) or not hasattr(formatted_response, "is_nsfw"):
             deserialized_result = resulting_synapse.deserialize()
             if deserialized_result is None:
                 formatted_response = None
@@ -282,7 +311,9 @@ async def query_individual_axon_stream(
 ):
     synapse_name = synapse.__class__.__name__
     if synapse_name not in cst.OPERATION_TIMEOUTS:
-        bt.logging.warning(f"Operation {synapse_name} not in operation_to_timeout, this is probably a mistake / bug 🐞")
+        bt.logging.warning(
+            f"Operation {synapse_name} not in operation_to_timeout, this is probably a mistake / bug 🐞"
+        )
     if log_requests_and_responses:
         bt.logging.info(f"Querying axon {axon_uid} for {synapse_name}")
     response = await dendrite.forward(

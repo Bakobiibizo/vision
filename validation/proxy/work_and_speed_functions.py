@@ -25,9 +25,9 @@ def _calculate_speed_modifier(time_per_unit: float, config: TaskConfig) -> float
 
     if time_per_unit <= mean:
         # y = 1 + (M - 1) * (b - x)^c / b^c
-        speed_modifier = 1 + (MAX_SPEED_BONUS - 1) * ((mean - time_per_unit) ** BELOW_MEAN_EXPONENT) / (
-            mean**BELOW_MEAN_EXPONENT
-        )
+        speed_modifier = 1 + (MAX_SPEED_BONUS - 1) * (
+            (mean - time_per_unit) ** BELOW_MEAN_EXPONENT
+        ) / (mean**BELOW_MEAN_EXPONENT)
     else:
         # y = e^((b - x) * v)
         speed_modifier = math.exp((mean - time_per_unit) * variance)
@@ -58,7 +58,9 @@ def _calculate_work_clip(number_of_images: int) -> float:
     return number_of_images
 
 
-def calculate_speed_modifier(task: Task, result: Dict[str, Any], synapse: Dict[str, Any]) -> float:
+def calculate_speed_modifier(
+    task: Task, result: Dict[str, Any], synapse: Dict[str, Any]
+) -> float:
     config = tasks.get_task_config(task)
 
     response_time = result.get("response_time")
@@ -74,7 +76,9 @@ def calculate_speed_modifier(task: Task, result: Dict[str, Any], synapse: Dict[s
         return _calculate_speed_modifier(time_per_step, config)
     elif config.task_type == TaskType.TEXT:
         formatted_response = (
-            json.loads(raw_formatted_response) if isinstance(raw_formatted_response, str) else raw_formatted_response
+            json.loads(raw_formatted_response)
+            if isinstance(raw_formatted_response, str)
+            else raw_formatted_response
         )
         miner_chat_responses: List[utility_models.MinerChatResponse] = [
             utility_models.MinerChatResponse(**r) for r in formatted_response
@@ -85,7 +89,9 @@ def calculate_speed_modifier(task: Task, result: Dict[str, Any], synapse: Dict[s
         if number_of_characters == 0:
             return 0  # Doesn't matter what is returned here
 
-        return _calculate_speed_modifier(normalised_response_time / number_of_characters, config)
+        return _calculate_speed_modifier(
+            normalised_response_time / number_of_characters, config
+        )
     elif config.task_type == TaskType.CLIP:
         return _calculate_speed_modifier(normalised_response_time, config)
     else:
@@ -93,13 +99,17 @@ def calculate_speed_modifier(task: Task, result: Dict[str, Any], synapse: Dict[s
 
 
 def calculate_work(
-    task: Task, result: Union[utility_models.QueryResult, Dict[str, Any]], synapse: Union[Dict[str, Any], bt.Synapse]
+    task: Task,
+    result: Union[utility_models.QueryResult, Dict[str, Any]],
+    synapse: Union[Dict[str, Any], bt.Synapse],
 ) -> float:
     """Gets volume for the task that was executed"""
     config = tasks.get_task_config(task)
 
     raw_formatted_response = (
-        result.formatted_response if isinstance(result, utility_models.QueryResult) else result["formatted_response"]
+        result.formatted_response
+        if isinstance(result, utility_models.QueryResult)
+        else result["formatted_response"]
     )
 
     if config.task_type == TaskType.IMAGE:
@@ -107,7 +117,9 @@ def calculate_work(
         return _calculate_work_image(steps)
     elif config.task_type == TaskType.TEXT:
         formatted_response = (
-            json.loads(raw_formatted_response) if isinstance(raw_formatted_response, str) else raw_formatted_response
+            json.loads(raw_formatted_response)
+            if isinstance(raw_formatted_response, str)
+            else raw_formatted_response
         )
         miner_chat_responses: List[utility_models.MinerChatResponse] = [
             utility_models.MinerChatResponse(**r) for r in formatted_response

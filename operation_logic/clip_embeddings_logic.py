@@ -21,7 +21,7 @@ async def _get_clip_embeddings_from_server(body: BaseModel) -> ClipEmbeddingsRes
         bt.logging.warning(
             f"Error getting an image; response {error.response.status_code} while making request to {clip_endpoint}: {error}"
         )
-        raise 
+        raise
     except httpx.RequestError as error:
         bt.logging.warning(
             f"Error getting an image; An error occurred while making request to {clip_endpoint}: {error}"
@@ -29,13 +29,17 @@ async def _get_clip_embeddings_from_server(body: BaseModel) -> ClipEmbeddingsRes
         raise
 
     if response.status_code != 200:
-        bt.logging.error(f"Request failed with status {response.status_code}, error message: {response.text}")
+        bt.logging.error(
+            f"Request failed with status {response.status_code}, error message: {response.text}"
+        )
         return ClipEmbeddingsResponse()
 
     try:
         embeddings_response = ClipEmbeddingsResponse(**response.json())
     except Exception as e:
-        bt.logging.error(f"Error occurred while processing the server response: {e}. Original response: {response}")
+        bt.logging.error(
+            f"Error occurred while processing the server response: {e}. Original response: {response}"
+        )
         raise
 
     return embeddings_response

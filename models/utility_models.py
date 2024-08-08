@@ -8,6 +8,7 @@ import bittensor as bt
 from core import Task
 from validation.models import axon_uid
 
+
 class QueryResult(BaseModel):
     formatted_response: Any
     axon_uid: Optional[int]

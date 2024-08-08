@@ -22,5 +22,5 @@ TASKS_TO_MINER_OPERATION_MODULES: Dict[Task, Any] = {
     Task.jugger_inpainting: inpaint_operation,
     Task.clip_image_embeddings: clip_embeddings_operation,
     Task.avatar: avatar_operation,
-    Task.translation: translation_operation
+    Task.translation: translation_operation,
 }

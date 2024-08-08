@@ -12,7 +12,9 @@ PERIOD_SCORE_TIME_DECAYING_FACTOR = 0.5
 
 
 async def _get_reward_datas(miner_hotkey: str, task: Task) -> List[RewardData]:
-    reward_datas = await db_manager.fetch_recent_most_rewards_for_uid(task, miner_hotkey)
+    reward_datas = await db_manager.fetch_recent_most_rewards_for_uid(
+        task, miner_hotkey
+    )
     return reward_datas
 
 
@@ -24,7 +26,8 @@ async def _get_period_scores(miner_hotkey: str, task: Task) -> List[PeriodScore]
 async def _calculate_combined_quality_score(miner_hotkey: str, task: Task) -> float:
     reward_datas = await _get_reward_datas(miner_hotkey, task)
     combined_quality_scores = [
-        reward_data.quality_score * reward_data.speed_scoring_factor for reward_data in reward_datas
+        reward_data.quality_score * reward_data.speed_scoring_factor
+        for reward_data in reward_datas
     ]
     if not combined_quality_scores:
         return 0
@@ -76,14 +79,20 @@ def _non_linear_score_transformation(effective_volume_for_task: float) -> float:
     return effective_volume_for_task**3
 
 
-def apply_non_linear_transformation_and_renormalise(linear_normalised_scores: Dict[str, float]) -> Dict[str, float]:
+def apply_non_linear_transformation_and_renormalise(
+    linear_normalised_scores: Dict[str, float]
+) -> Dict[str, float]:
     transformed_scores = {
-        hotkey: _non_linear_score_transformation(score) for hotkey, score in linear_normalised_scores.items()
+        hotkey: _non_linear_score_transformation(score)
+        for hotkey, score in linear_normalised_scores.items()
     }
 
     sum_transformed_scores = sum(transformed_scores.values())
 
-    return {hotkey: score / sum_transformed_scores for hotkey, score in transformed_scores.items()}
+    return {
+        hotkey: score / sum_transformed_scores
+        for hotkey, score in transformed_scores.items()
+    }
 
 
 async def calculate_scores_for_settings_weights(
@@ -102,8 +111,12 @@ async def calculate_scores_for_settings_weights(
 
         for uid, volume in capacities.items():
             miner_hotkey = uid_to_uid_info[uid].hotkey
-            combined_quality_score = await _calculate_combined_quality_score(miner_hotkey, task)
-            normalised_period_score = await _calculate_normalised_period_score(miner_hotkey, task)
+            combined_quality_score = await _calculate_combined_quality_score(
+                miner_hotkey, task
+            )
+            normalised_period_score = await _calculate_normalised_period_score(
+                miner_hotkey, task
+            )
             effective_volume_for_task = _calculate_hotkey_effective_volume_for_task(
                 combined_quality_score, normalised_period_score, volume
             )
@@ -117,10 +130,13 @@ async def calculate_scores_for_settings_weights(
             for hotkey, effective_volume in hotkey_to_effective_volumes.items()
         }
 
-        normalised_scores_for_task = apply_non_linear_transformation_and_renormalise(normalised_scores_for_task)
+        normalised_scores_for_task = apply_non_linear_transformation_and_renormalise(
+            normalised_scores_for_task
+        )
         for hotkey in normalised_scores_for_task:
             total_hotkey_scores[hotkey] = (
-                total_hotkey_scores.get(hotkey, 0) + normalised_scores_for_task[hotkey] * task_weight
+                total_hotkey_scores.get(hotkey, 0)
+                + normalised_scores_for_task[hotkey] * task_weight
             )
 
     return total_hotkey_scores

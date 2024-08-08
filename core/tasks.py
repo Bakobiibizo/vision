@@ -36,7 +36,7 @@ TASKS_TO_SYNAPSE: Dict[Task, bt.Synapse] = {
     Task.jugger_inpainting: synapses.Inpaint,
     Task.clip_image_embeddings: synapses.ClipEmbeddings,
     Task.avatar: synapses.Avatar,
-    Task.translation: synapses.Translation
+    Task.translation: synapses.Translation,
 }
 
 
@@ -72,6 +72,8 @@ def get_task_from_synapse(synapse: bt.Synapse) -> Optional[Task]:
         return Task.clip_image_embeddings
     elif isinstance(synapse, synapses.Avatar):
         return Task.avatar
+    elif isinstance(synapse, synapses.Translation):
+        return Task.translation
     else:
         return None
 
@@ -80,6 +82,7 @@ class TaskType(Enum):
     IMAGE = "image"
     TEXT = "text"
     CLIP = "clip"
+    TRANSLATION = "transl"
 
 
 class TaskConfig(BaseModel):
@@ -140,7 +143,9 @@ TASK_CONFIGS = [
         variance=2,
         task_type=TaskType.IMAGE,
     ),
-    TaskConfig(task=Task.avatar, overhead=5, mean=0.40, variance=3, task_type=TaskType.IMAGE),
+    TaskConfig(
+        task=Task.avatar, overhead=5, mean=0.40, variance=3, task_type=TaskType.IMAGE
+    ),
     TaskConfig(
         task=Task.chat_mixtral,
         overhead=1,
@@ -161,6 +166,13 @@ TASK_CONFIGS = [
         mean=0.5,
         variance=2,
         task_type=TaskType.CLIP,
+    ),
+    TaskConfig(
+        task=Task.translation,
+        overhead=1,
+        mean=0.5,
+        variance=1,
+        task_type=TaskType.TRANSLATION,
     ),
 ]
 

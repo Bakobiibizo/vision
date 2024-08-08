@@ -30,9 +30,13 @@ def get_miner_cli_config() -> "bt.Config":
         help="Port to run the axon on.",
     )
 
-    parser.add_argument("--axon.external_ip", type=str, default=miner_config.axon_external_ip)
+    parser.add_argument(
+        "--axon.external_ip", type=str, default=miner_config.axon_external_ip
+    )
 
-    parser.add_argument("--debug_miner", action="store_true", default=miner_config.debug_miner)
+    parser.add_argument(
+        "--debug_miner", action="store_true", default=miner_config.debug_miner
+    )
 
     parser.add_argument(
         "--subtensor.network",

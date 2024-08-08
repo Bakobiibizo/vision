@@ -56,7 +56,9 @@ class Chat(bt.StreamingSynapse, base_models.ChatBase):
     def deserialize(self) -> Optional[Dict[str, str]]:
         return None
 
-    async def process_streaming_response(self, response: StreamingResponse) -> AsyncIterator[str]:
+    async def process_streaming_response(
+        self, response: StreamingResponse
+    ) -> AsyncIterator[str]:
         async for chunk in response.content.iter_any():
             if isinstance(chunk, bytes):
                 tokens = chunk.decode("utf-8")
@@ -72,10 +74,17 @@ class Chat(bt.StreamingSynapse, base_models.ChatBase):
         Args:
             response: The response object from which to extract JSON data.
         """
-        headers = {k.decode("utf-8"): v.decode("utf-8") for k, v in response.__dict__["_raw_headers"]}
+        headers = {
+            k.decode("utf-8"): v.decode("utf-8")
+            for k, v in response.__dict__["_raw_headers"]
+        }
 
         def extract_info(prefix: str) -> dict[str, str]:
-            return {key.split("_")[-1]: value for key, value in headers.items() if key.startswith(prefix)}
+            return {
+                key.split("_")[-1]: value
+                for key, value in headers.items()
+                if key.startswith(prefix)
+            }
 
         return {
             "name": headers.get("name", ""),
@@ -93,10 +102,9 @@ class Translation(bt.Synapse, base_models.TranslationBase):
             return base64.b64decode(self.data.encode("utf-8"))
         except EncodingWarning as e:
             bt.logging(f"Error deserializing request: {e}")
-    
+
     def serialize(self):
         try:
             return base64.b64encode(self.data).decode("utf-8")
         except EncodingWarning as e:
             bt.logging(f"Error serializing request: {e}")
-    

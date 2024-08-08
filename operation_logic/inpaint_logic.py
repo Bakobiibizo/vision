@@ -1,4 +1,3 @@
-
 import bittensor as bt
 
 
@@ -8,18 +7,27 @@ from operation_logic import utils as operation_utils
 POST_ENDPOINT = "inpaint"
 
 
-async def inpaint_logic(body: base_models.InpaintIncoming) -> base_models.InpaintOutgoing:
-
+async def inpaint_logic(
+    body: base_models.InpaintIncoming,
+) -> base_models.InpaintOutgoing:
     output = base_models.ImageToImageOutgoing(image_b64=None)
 
-    image_response_body = await operation_utils.get_image_from_server(body, POST_ENDPOINT, timeout=20)
+    image_response_body = await operation_utils.get_image_from_server(
+        body, POST_ENDPOINT, timeout=20
+    )
     # If safe for work but still no images, something went wrong probably
-    if image_response_body is None or image_response_body.image_b64 is None and not image_response_body.is_nsfw:
+    if (
+        image_response_body is None
+        or image_response_body.image_b64 is None
+        and not image_response_body.is_nsfw
+    ):
         output.error_message = "Some error from the generation :/"
         return output
 
     if image_response_body.is_nsfw:
-        bt.logging.info("NSFW image detected 👿, returning a corresponding error and no image")
+        bt.logging.info(
+            "NSFW image detected 👿, returning a corresponding error and no image"
+        )
         output.image_b64 = None
         output.is_nsfw = True
     else:

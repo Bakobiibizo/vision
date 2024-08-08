@@ -6,7 +6,10 @@ from validation.db.db_management import db_manager
 
 
 async def adjust_uid_record_from_result(
-    query_result: utility_models.QueryResult, synapse: bt.Synapse, uid_record: UIDRecord, synthetic_query: bool
+    query_result: utility_models.QueryResult,
+    synapse: bt.Synapse,
+    uid_record: UIDRecord,
+    synthetic_query: bool,
 ) -> None:
     """This does a query, and returns either the finished image request"""
 
@@ -16,7 +19,9 @@ async def adjust_uid_record_from_result(
     # uid_record.synthetic_requests_still_to_make -= 1
 
     if query_result.status_code == 200 and query_result.success:
-        work = work_and_speed_functions.calculate_work(query_result.task, query_result, synapse=synapse.dict())
+        work = work_and_speed_functions.calculate_work(
+            query_result.task, query_result, synapse=synapse.dict()
+        )
         uid_record.consumed_volume += work
 
         await db_manager.potentially_store_result_in_sql_lite_db(

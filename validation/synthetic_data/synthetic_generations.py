@@ -35,11 +35,66 @@ def _get_random_letters(length: int) -> str:
 
 
 def _get_random_avatar_text_prompt() -> dc.TextPrompt:
-    nouns = ['king', 'man', 'woman', 'joker', 'queen', 'child', 'doctor', 'teacher', 'soldier', 'merchant']  # fmt: off
-    locations = ['forest', 'castle', 'city', 'village', 'desert', 'oceanside', 'mountain', 'garden', 'library', 'market']  # fmt: off
-    looks = ['happy', 'sad', 'angry', 'worried', 'curious', 'lost', 'busy', 'relaxed', 'fearful', 'thoughtful']  # fmt: off
-    actions = ['running', 'walking', 'reading', 'talking', 'sleeping', 'dancing', 'working', 'playing', 'watching', 'singing']  # fmt: off
-    times = ['in the morning', 'at noon', 'in the afternoon', 'in the evening', 'at night', 'at midnight', 'at dawn', 'at dusk', 'during a storm', 'during a festival']  # fmt: off
+    nouns = [
+        "king",
+        "man",
+        "woman",
+        "joker",
+        "queen",
+        "child",
+        "doctor",
+        "teacher",
+        "soldier",
+        "merchant",
+    ]  # fmt: off
+    locations = [
+        "forest",
+        "castle",
+        "city",
+        "village",
+        "desert",
+        "oceanside",
+        "mountain",
+        "garden",
+        "library",
+        "market",
+    ]  # fmt: off
+    looks = [
+        "happy",
+        "sad",
+        "angry",
+        "worried",
+        "curious",
+        "lost",
+        "busy",
+        "relaxed",
+        "fearful",
+        "thoughtful",
+    ]  # fmt: off
+    actions = [
+        "running",
+        "walking",
+        "reading",
+        "talking",
+        "sleeping",
+        "dancing",
+        "working",
+        "playing",
+        "watching",
+        "singing",
+    ]  # fmt: off
+    times = [
+        "in the morning",
+        "at noon",
+        "in the afternoon",
+        "in the evening",
+        "at night",
+        "at midnight",
+        "at dawn",
+        "at dusk",
+        "during a storm",
+        "during a festival",
+    ]  # fmt: off
 
     noun = random.choice(nouns)
     location = random.choice(locations)
@@ -72,15 +127,23 @@ class SyntheticDataManager:
 
     async def _continuously_fetch_synthetic_data_for_tasks(self) -> None:
         # Initial fetch be quick
-        tasks_needing_synthetic_data = [task for task in tasks.Task if task not in self.task_to_stored_synthetic_data]
+        tasks_needing_synthetic_data = [
+            task
+            for task in tasks.Task
+            if task not in self.task_to_stored_synthetic_data
+        ]
         while tasks_needing_synthetic_data:
             sync_tasks = []
             for task in tasks_needing_synthetic_data:
-                sync_tasks.append(asyncio.create_task(self._update_synthetic_data_for_task(task)))
+                sync_tasks.append(
+                    asyncio.create_task(self._update_synthetic_data_for_task(task))
+                )
 
             await asyncio.gather(*sync_tasks)
             tasks_needing_synthetic_data = [
-                task for task in tasks.Task if task not in self.task_to_stored_synthetic_data
+                task
+                for task in tasks.Task
+                if task not in self.task_to_stored_synthetic_data
             ]
 
         while True:
@@ -90,7 +153,9 @@ class SyntheticDataManager:
 
     async def fetch_synthetic_data_for_task(self, task: Task) -> Dict[str, Any]:
         while task not in self.task_to_stored_synthetic_data:
-            bt.logging.warning(f"Synthetic data not found for task {task} yet, waiting...")
+            bt.logging.warning(
+                f"Synthetic data not found for task {task} yet, waiting..."
+            )
             await asyncio.sleep(10)
 
         synth_data = self.task_to_stored_synthetic_data[task]
@@ -141,7 +206,9 @@ class SyntheticDataManager:
             try:
                 response_json = response.json()
             except ValueError as e:
-                bt.logging.error(f"Synthetic data Response contained invalid JSON: error :{e}")
+                bt.logging.error(
+                    f"Synthetic data Response contained invalid JSON: error :{e}"
+                )
                 return None
 
             self.task_to_stored_synthetic_data[task] = response_json

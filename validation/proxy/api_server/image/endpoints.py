@@ -75,7 +75,10 @@ async def inpaint(
     )
 
     result = await core_validator.make_organic_query(
-        synapse=synapse, outgoing_model=base_models.InpaintOutgoing, task=Task("inpaint"), stream=False
+        synapse=synapse,
+        outgoing_model=base_models.InpaintOutgoing,
+        task=Task("inpaint"),
+        stream=False,
     )
     if isinstance(result, JSONResponse):
         return result
@@ -99,7 +102,10 @@ async def avatar(
     )
 
     result = await core_validator.make_organic_query(
-        synapse=synapse, outgoing_model=base_models.AvatarOutgoing, task=Task("avatar"), stream=False
+        synapse=synapse,
+        outgoing_model=base_models.AvatarOutgoing,
+        task=Task("avatar"),
+        stream=False,
     )
     if isinstance(result, JSONResponse):
         return result

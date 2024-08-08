@@ -18,8 +18,14 @@ ALLOWED_PARAMS_FOR_ENGINE = {
             "checker": lambda w: 512 <= w <= 1344 and w % 64 == 0,
             "error_message": "should be in between 512 and 1344 (inclusive) and multiple of 64",
         },
-        "cfg_scale": {"checker": lambda c: 1 <= c <= 4, "error_message": "should be between 1 and 4"},
-        "image_strength": {"checker": lambda i: 0.0 <= i <= 0.75, "error_message": "should be between 0.0 and 0.75"},
+        "cfg_scale": {
+            "checker": lambda c: 1 <= c <= 4,
+            "error_message": "should be between 1 and 4",
+        },
+        "image_strength": {
+            "checker": lambda i: 0.0 <= i <= 0.75,
+            "error_message": "should be between 0.0 and 0.75",
+        },
     },
     utility_models.EngineEnum.DREAMSHAPER.value: {
         "steps": {
@@ -34,8 +40,14 @@ ALLOWED_PARAMS_FOR_ENGINE = {
             "checker": lambda w: 512 <= w <= 1344 and w % 64 == 0,
             "error_message": "should be in between 512 and 1344 (inclusive) and multiple of 64",
         },
-        "cfg_scale": {"checker": lambda c: 1 <= c <= 4, "error_message": "should be between 1 and 4"},
-        "image_strength": {"checker": lambda i: 0.0 <= i <= 0.75, "error_message": "should be between 0.0 and 0.75"},
+        "cfg_scale": {
+            "checker": lambda c: 1 <= c <= 4,
+            "error_message": "should be between 1 and 4",
+        },
+        "image_strength": {
+            "checker": lambda i: 0.0 <= i <= 0.75,
+            "error_message": "should be between 0.0 and 0.75",
+        },
     },
     utility_models.EngineEnum.PLAYGROUND.value: {
         "steps": {
@@ -51,7 +63,10 @@ ALLOWED_PARAMS_FOR_ENGINE = {
             "error_message": "should be in between 512 and 1344 (inclusive) and multiple of 64",
             "generator": lambda: random.choice([i for i in range(512, 1344 + 64, 64)]),
         },
-        "cfg_scale": {"checker": lambda c: 1 <= c <= 10, "error_message": "should be between 1 and 10"},
+        "cfg_scale": {
+            "checker": lambda c: 1 <= c <= 10,
+            "error_message": "should be between 1 and 10",
+        },
         "image_strength": {
             "checker": lambda i: 0.0 <= i <= 0.75,
             "error_message": "should be between 0.0 and 0.75",
@@ -64,17 +79,29 @@ ALLOWED_PARAMS_FOR_ENGINE = {
 class TextToImageRequest(BaseModel):
     """Generate an image from text!"""
 
-    cfg_scale: float = Field(cst.DEFAULT_CFG_SCALE, description="Scale for the configuration", ge=0.1, le=10)
+    cfg_scale: float = Field(
+        cst.DEFAULT_CFG_SCALE, description="Scale for the configuration", ge=0.1, le=10
+    )
     steps: int = Field(
-        cst.DEFAULT_STEPS, description="Number of steps in the image generation process - must be an ", le=50, ge=1
+        cst.DEFAULT_STEPS,
+        description="Number of steps in the image generation process - must be an ",
+        le=50,
+        ge=1,
     )
     engine: utility_models.EngineEnum = Field(
-        default=utility_models.EngineEnum.PROTEUS.value, description="The engine to use for image generation"
+        default=utility_models.EngineEnum.PROTEUS.value,
+        description="The engine to use for image generation",
     )
 
-    text_prompts: List[dc.TextPrompt] = Field(..., description="Prompts for the image generation", title="text_prompts")
-    height: Optional[int] = Field(cst.DEFAULT_HEIGHT, description="Height of the generated image", le=1344, ge=512)
-    width: Optional[int] = Field(cst.DEFAULT_WIDTH, description="Width of the generated image", le=1344, ge=512)
+    text_prompts: List[dc.TextPrompt] = Field(
+        ..., description="Prompts for the image generation", title="text_prompts"
+    )
+    height: Optional[int] = Field(
+        cst.DEFAULT_HEIGHT, description="Height of the generated image", le=1344, ge=512
+    )
+    width: Optional[int] = Field(
+        cst.DEFAULT_WIDTH, description="Width of the generated image", le=1344, ge=512
+    )
 
     class Config:
         schema_extra = {
@@ -106,7 +133,12 @@ class TextToImageRequest(BaseModel):
         width = values.get("width")
         cfg_scale = values.get("cfg_scale")
 
-        params_and_values = [("steps", steps), ("height", height), ("width", width), ("cfg_scale", cfg_scale)]
+        params_and_values = [
+            ("steps", steps),
+            ("height", height),
+            ("width", width),
+            ("cfg_scale", cfg_scale),
+        ]
 
         if engine not in ALLOWED_PARAMS_FOR_ENGINE:
             raise ValueError(f"Engine {engine} not supported")
@@ -130,19 +162,37 @@ class ImageToImageRequest(BaseModel):
     class Config:
         use_enum_values = True
 
-    cfg_scale: float = Field(cst.DEFAULT_CFG_SCALE, description="Scale for the configuration", le=10, ge=0.1)
-    steps: int = Field(cst.DEFAULT_STEPS, description="Number of steps in the image generation process", le=50, ge=1)
+    cfg_scale: float = Field(
+        cst.DEFAULT_CFG_SCALE, description="Scale for the configuration", le=10, ge=0.1
+    )
+    steps: int = Field(
+        cst.DEFAULT_STEPS,
+        description="Number of steps in the image generation process",
+        le=50,
+        ge=1,
+    )
     engine: utility_models.EngineEnum = Field(
-        default=utility_models.EngineEnum.PROTEUS.value, description="The engine to use for image generation"
+        default=utility_models.EngineEnum.PROTEUS.value,
+        description="The engine to use for image generation",
     )
 
-    init_image: str = Field(..., description="The base64 encoded image", title="init_image")
-    text_prompts: List[dc.TextPrompt] = Field([], description="Prompts for the image generation", title="text_prompts")
+    init_image: str = Field(
+        ..., description="The base64 encoded image", title="init_image"
+    )
+    text_prompts: List[dc.TextPrompt] = Field(
+        [], description="Prompts for the image generation", title="text_prompts"
+    )
 
-    image_strength: float = Field(0.25, description="The strength of the init image", le=0.9, ge=0.0)
+    image_strength: float = Field(
+        0.25, description="The strength of the init image", le=0.9, ge=0.0
+    )
 
-    height: Optional[int] = Field(1024, description="Height of the generated image", le=1344, ge=512)
-    width: Optional[int] = Field(1024, description="Width of the generated image", le=1344, ge=512)
+    height: Optional[int] = Field(
+        1024, description="Height of the generated image", le=1344, ge=512
+    )
+    width: Optional[int] = Field(
+        1024, description="Width of the generated image", le=1344, ge=512
+    )
 
     @validator("text_prompts")
     def check_text_prompts_non_empty(cls, values):
@@ -158,7 +208,12 @@ class ImageToImageRequest(BaseModel):
         width = values.get("width")
         cfg_scale = values.get("cfg_scale")
 
-        params_and_values = [("steps", steps), ("height", height), ("width", width), ("cfg_scale", cfg_scale)]
+        params_and_values = [
+            ("steps", steps),
+            ("height", height),
+            ("width", width),
+            ("cfg_scale", cfg_scale),
+        ]
 
         if engine not in ALLOWED_PARAMS_FOR_ENGINE:
             raise ValueError(f"Engine {engine} not supported")
@@ -180,26 +235,42 @@ class AvatarRequest(BaseModel):
     class Config:
         use_enum_values = True
 
-    text_prompts: List[dc.TextPrompt] = Field(..., description="Prompts for the image generation", title="text_prompts")
-    init_image: Optional[str] = Field(..., description="The base64 encoded image", title="image")
+    text_prompts: List[dc.TextPrompt] = Field(
+        ..., description="Prompts for the image generation", title="text_prompts"
+    )
+    init_image: Optional[str] = Field(
+        ..., description="The base64 encoded image", title="image"
+    )
     ipadapter_strength: float = Field(0.5, description="The strength of the init image")
     control_strength: float = Field(0.5, description="The strength of the init image")
     height: int = Field(1024, description="Height of the generated image")
     width: int = Field(1024, description="Width of the generated image")
-    steps: int = Field(15, description="Number of steps in the image generation process")
+    steps: int = Field(
+        15, description="Number of steps in the image generation process"
+    )
 
 
 class InpaintRequest(BaseModel):
     class Config:
         use_enum_values = True
 
-    cfg_scale: float = Field(cst.DEFAULT_CFG_SCALE, description="Scale for the configuration")
-    steps: int = Field(cst.DEFAULT_STEPS, description="Number of steps in the image generation process")
+    cfg_scale: float = Field(
+        cst.DEFAULT_CFG_SCALE, description="Scale for the configuration"
+    )
+    steps: int = Field(
+        cst.DEFAULT_STEPS, description="Number of steps in the image generation process"
+    )
 
-    init_image: str = Field(..., description="The base64 encoded image", title="init_image")
-    text_prompts: List[dc.TextPrompt] = Field([], description="Prompts for the image generation", title="text_prompts")
+    init_image: str = Field(
+        ..., description="The base64 encoded image", title="init_image"
+    )
+    text_prompts: List[dc.TextPrompt] = Field(
+        [], description="Prompts for the image generation", title="text_prompts"
+    )
 
-    mask_image: str = Field(None, description="The base64 encoded mask", title="mask_source")
+    mask_image: str = Field(
+        None, description="The base64 encoded mask", title="mask_source"
+    )
 
     @validator("text_prompts")
     def check_text_prompts_non_empty(cls, values):
@@ -273,7 +344,11 @@ class InpaintRequest(BaseModel):
 class ChatRequest(BaseModel):
     messages: list[utility_models.Message] = Field(...)
     temperature: float = Field(
-        default=..., title="Temperature", description="Temperature for text generation.", ge=0.1, le=1.0
+        default=...,
+        title="Temperature",
+        description="Temperature for text generation.",
+        ge=0.1,
+        le=1.0,
     )
 
     model: utility_models.ChatModels = Field(
@@ -282,7 +357,9 @@ class ChatRequest(BaseModel):
         description="The model to use for text generation.",
     )
 
-    max_tokens: int = Field(500, title="Max Tokens", description="Max tokens for text generation.")
+    max_tokens: int = Field(
+        500, title="Max Tokens", description="Max tokens for text generation."
+    )
 
 
 class UpscaleRequest(BaseModel):
@@ -298,31 +375,46 @@ class ClipEmbeddingsRequest(BaseModel):
 
 
 class TextToImageResponse(BaseModel):
-    image_b64: str = Field(..., description="The base64 encoded images to return", title="image_b64")
+    image_b64: str = Field(
+        ..., description="The base64 encoded images to return", title="image_b64"
+    )
 
 
 class ImageToImageResponse(BaseModel):
-    image_b64: str = Field(..., description="The base64 encoded images to return", title="image_b64")
+    image_b64: str = Field(
+        ..., description="The base64 encoded images to return", title="image_b64"
+    )
 
 
 class InpaintResponse(BaseModel):
-    image_b64: str = Field(..., description="The base64 encoded images to return", title="image_b64")
+    image_b64: str = Field(
+        ..., description="The base64 encoded images to return", title="image_b64"
+    )
 
 
 class AvatarResponse(BaseModel):
-    image_b64: str = Field(..., description="The base64 encoded images to return", title="image_b64")
+    image_b64: str = Field(
+        ..., description="The base64 encoded images to return", title="image_b64"
+    )
 
 
 class ScribbleResponse(BaseModel):
-    image_b64: str = Field(..., description="The base64 encoded images to return", title="image_b64")
+    image_b64: str = Field(
+        ..., description="The base64 encoded images to return", title="image_b64"
+    )
 
 
 class UpscaleResponse(BaseModel):
-    image_b64: str = Field(..., description="The base64 encoded images to return", title="image_b64")
+    image_b64: str = Field(
+        ..., description="The base64 encoded images to return", title="image_b64"
+    )
 
 
 class ClipEmbeddingsResponse(BaseModel):
-    clip_embeddings: List[List[float]] = Field(..., description="The image embeddings", title="clip_embeddings")
+    clip_embeddings: List[List[float]] = Field(
+        ..., description="The image embeddings", title="clip_embeddings"
+    )
+
 
 class TranslationRequest(BaseModel):
     data: Dict[str, Any]

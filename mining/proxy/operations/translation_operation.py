@@ -16,7 +16,9 @@ class TranslationOperation(abstract_operation.Operation):
     @staticmethod
     @abstract_operation.enforce_concurrency_limits
     async def forward(synapse: synapses.Translation) -> synapses.Translation:
-        output = await translation_logic.translation_logic(base_models.TranslationIncoming(**synapse.dict()))
+        output = await translation_logic.translation_logic(
+            base_models.TranslationIncoming(**synapse.dict())
+        )
         output_dict = output.dict()
         for field in output_dict:
             setattr(synapse, field, output_dict[field])

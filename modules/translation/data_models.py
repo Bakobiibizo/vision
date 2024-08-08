@@ -119,16 +119,16 @@ class BaseModule(BaseModel):
         endpoint = os.getenv("MODULE_ENDPOINT")
         url = os.getenv("MODULE_URL")
         filepath = f"{os.getenv('MODULE_PATH')}/setup_{name}.py"
-        
+
         module = json.loads(requests.get(f"{url}{endpoint}").json())
-        
+
         filepath = Path(filepath)
-        
+
         if not filepath.exists():
             filepath.parent.mkdir(parents=True)
-        
+
         filepath.write_text(json.loads(module))
-        
+
         return module
 
     def remove_module(self):
@@ -202,8 +202,8 @@ class BaseModule(BaseModel):
             ],
             check=True,
         )
-        
-        
+
+
 app = FastAPI()
 
 app.add_middleware(
@@ -611,14 +611,14 @@ class TranslationData(BaseModel):
     task_string: str
     source_language: Optional[str] = None
     target_language: str
-    
-    
+
+
 class TranslationRequest(MinerRequest):
     def __init__(self, data: TranslationData):
         super().__init__()
         self.data = data
 
-   
+
 __all__ = [
     "TranslationConfig",
     "TranslationData",
@@ -630,5 +630,5 @@ __all__ = [
     "BaseMiner",
     "BaseModule",
     "app",
-    "Ss58Key"
+    "Ss58Key",
 ]

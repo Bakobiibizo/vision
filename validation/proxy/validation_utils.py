@@ -48,7 +48,9 @@ def alter_image(
 
         for i in range(3):
             change = random.choice([-1, 1])
-            numpy_image[rand_y, rand_x, i] = np.clip(numpy_image[rand_y, rand_x, i] + change, 0, 255)
+            numpy_image[rand_y, rand_x, i] = np.clip(
+                numpy_image[rand_y, rand_x, i] + change, 0, 255
+            )
 
     pil_image = Image.fromarray(numpy_image)
 

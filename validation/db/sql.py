@@ -101,6 +101,7 @@ def select_count_rows_of_task_stored_for_scoring() -> str:
     SELECT COUNT(*) FROM {cst.TABLE_TASKS} WHERE {cst.COLUMN_TASK_NAME} = ?
     """
 
+
 def select_task_for_deletion() -> str:
     return f"""
     SELECT t.{cst.COLUMN_CHECKING_DATA}, t.{cst.COLUMN_MINER_HOTKEY}
@@ -115,7 +116,6 @@ def select_task_for_deletion() -> str:
     ORDER BY COALESCE(r.reward_count, 0) ASC
     LIMIT 1
     """
-
 
 
 def select_recent_reward_data_for_a_task():
