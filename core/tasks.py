@@ -2,78 +2,104 @@
 
 from enum import Enum
 from pydantic import BaseModel
-from core import Task
 from models import synapses, utility_models
 from typing import Dict, Optional
 import bittensor as bt
 
-# I don't love this being here. How else should I do it though?
-# I don't want to rely on any extra third party service for fetching this info...
+
+class TASK(Enum):
+    CHAT_MIXTRAL = "chat-mixtral"
+    CHAT_LLAMA_3 = "chat-llama-3"
+    PROTEUS_TEXT_TO_IMAGE = "proteus-text-to-image"
+    PLAYGROUND_TEXT_TO_IMAGE = "playground-text-to-image"
+    DREAMSHAPER_TEXT_TO_IMAGE = "dreamshaper-text-to-image"
+    PROTEUS_TEXT_TO_IMAGE = "proteus-image-to-image"
+    PLAYGROUND_IMAGE_TO_IMAGE = "playground-image-to-image"
+    DREAMSHAPER_IMAGE_TO_IMAGE = "dreamshaper-image-to-image"
+    JUGGER_INPAINT = "inpaint"
+    CLIP_IMAGE_EMBEDDING = "clip-image-embeddings"
+    AVATAR = "avatar"
+    TRANSLATION = "translation"
 
 
-TASK_IS_STREAM: Dict[Task, bool] = {
-    Task.chat_mixtral: True,
-    Task.chat_llama_3: True,
-    Task.proteus_text_to_image: False,
-    Task.playground_text_to_image: False,
-    Task.dreamshaper_text_to_image: False,
-    Task.proteus_image_to_image: False,
-    Task.playground_image_to_image: False,
-    Task.dreamshaper_image_to_image: False,
-    Task.jugger_inpainting: False,
-    Task.clip_image_embeddings: False,
-    Task.avatar: False,
-}
-TASKS_TO_SYNAPSE: Dict[Task, bt.Synapse] = {
-    Task.chat_mixtral: synapses.Chat,
-    Task.chat_llama_3: synapses.Chat,
-    Task.proteus_text_to_image: synapses.TextToImage,
-    Task.playground_text_to_image: synapses.TextToImage,
-    Task.dreamshaper_text_to_image: synapses.TextToImage,
-    Task.proteus_image_to_image: synapses.ImageToImage,
-    Task.playground_image_to_image: synapses.ImageToImage,
-    Task.dreamshaper_image_to_image: synapses.ImageToImage,
-    Task.jugger_inpainting: synapses.Inpaint,
-    Task.clip_image_embeddings: synapses.ClipEmbeddings,
-    Task.avatar: synapses.Avatar,
-    Task.translation: synapses.Translation,
-}
+class STREAMING_TASK(Enum):
+    TASK.CHAT_MIXTRAL.name = True
+    TASK.CHAT_LLAMA_3.name = True
+    TASK.PROTEUS_TEXT_TO_IMAGE.name = False
+    TASK.PLAYGROUND_TEXT_TO_IMAGE.name = False
+    TASK.DREAMSHAPER_TEXT_TO_IMAGE.name = False
+    TASK.PROTEUS_TEXT_TO_IMAGE.name = False
+    TASK.PLAYGROUND_IMAGE_TO_IMAGE.name = False
+    TASK.DREAMSHAPER_IMAGE_TO_IMAGE.name = False
+    TASK.JUGGER_INPAINT.name = False
+    TASK.CLIP_IMAGE_EMBEDDING.name = False
+    TASK.AVATAR.name = False
 
 
-def get_task_from_synapse(synapse: bt.Synapse) -> Optional[Task]:
+class SYNAPSE_TASK(Enum):
+    TASK.CHAT_MIXTRAL.name = synapses.Chat
+    TASK.CHAT_LLAMA_3.name = synapses.Chat
+    TASK.PROTEUS_TEXT_TO_IMAGE.name = synapses.TextToImage
+    TASK.PLAYGROUND_TEXT_TO_IMAGE.name = synapses.TextToImage
+    TASK.DREAMSHAPER_TEXT_TO_IMAGE.name = synapses.TextToImage
+    TASK.PROTEUS_TEXT_TO_IMAGE.name = synapses.ImageToImage
+    TASK.PLAYGROUND_IMAGE_TO_IMAGE.name = synapses.ImageToImage
+    TASK.DREAMSHAPER_IMAGE_TO_IMAGE.name = synapses.ImageToImage
+    TASK.JUGGER_INPAINT.name = synapses.Inpaint
+    TASK.CLIP_IMAGE_EMBEDDING.name = synapses.ClipEmbeddings
+    TASK.AVATAR.name = synapses.Avatar
+    TASK.TRANSLATION.name = synapses.Translation
+
+
+class TASK_TO_MAX_CAPACITY(Enum):
+    TASK.CHAT_MIXTRAL.name = 576_000
+    TASK.CHAT_LLAMA_3.name = 576_000
+    TASK.PROTEUS_TEXT_TO_IMAGE.name = 3_600
+    TASK.PLAYGROUND_TEXT_TO_IMAGE.name = 10_000
+    TASK.DREAMSHAPER_TEXT_TO_IMAGE.name = 3_000
+    TASK.PROTEUS_TEXT_TO_IMAGE.name = 3_600
+    TASK.PLAYGROUND_IMAGE_TO_IMAGE.name = 10_000
+    TASK.DREAMSHAPER_IMAGE_TO_IMAGE.name = 3_000
+    TASK.JUGGER_INPAINT.name = 4_000
+    TASK.CLIP_IMAGE_EMBEDDING.name = (0,)  # disabled clip for no
+    TASK.AVATAR.name = 1_120
+    TASK.TRANSLATION.name = 64_000
+
+
+def get_task_from_synapse(synapse: bt.Synapse) -> Optional[TASK]:
     if isinstance(synapse, synapses.Chat):
         if synapse.model == utility_models.ChatModels.mixtral.value:
-            return Task.chat_mixtral
+            return TASK.CHAT_MIXTRAL.value
         elif synapse.model == utility_models.ChatModels.llama_3.value:
-            return Task.chat_llama_3
+            return TASK.CHAT_LLAMA_3.value
         else:
             return None
     elif isinstance(synapse, synapses.TextToImage):
         if synapse.engine == utility_models.EngineEnum.PROTEUS.value:
-            return Task.proteus_text_to_image
+            return TASK.PROTEUS_TEXT_TO_IMAGE.value
         elif synapse.engine == utility_models.EngineEnum.PLAYGROUND.value:
-            return Task.playground_text_to_image
+            return TASK.PLAYGROUND_TEXT_TO_IMAGE.value
         elif synapse.engine == utility_models.EngineEnum.DREAMSHAPER.value:
-            return Task.dreamshaper_text_to_image
+            return TASK.DREAMSHAPER_TEXT_TO_IMAGE.value
         else:
             return None
     elif isinstance(synapse, synapses.ImageToImage):
         if synapse.engine == utility_models.EngineEnum.PROTEUS.value:
-            return Task.proteus_image_to_image
+            return TASK.PROTEUS_TEXT_TO_IMAGE.value
         elif synapse.engine == utility_models.EngineEnum.PLAYGROUND.value:
-            return Task.playground_image_to_image
+            return TASK.PLAYGROUND_IMAGE_TO_IMAGE.value
         elif synapse.engine == utility_models.EngineEnum.DREAMSHAPER.value:
-            return Task.dreamshaper_image_to_image
+            return TASK.DREAMSHAPER_IMAGE_TO_IMAGE.value
         else:
             return None
     elif isinstance(synapse, synapses.Inpaint):
-        return Task.jugger_inpainting
+        return TASK.JUGGER_INPAINT.value
     elif isinstance(synapse, synapses.ClipEmbeddings):
-        return Task.clip_image_embeddings
+        return TASK.CLIP_IMAGE_EMBEDDING.value
     elif isinstance(synapse, synapses.Avatar):
-        return Task.avatar
+        return TASK.AVATAR.value
     elif isinstance(synapse, synapses.Translation):
-        return Task.translation
+        return TASK.TRANSLATION.value
     else:
         return None
 
@@ -86,7 +112,7 @@ class TaskType(Enum):
 
 
 class TaskConfig(BaseModel):
-    task: Task
+    task: TASK
     overhead: float
     mean: float
     variance: float
@@ -95,80 +121,84 @@ class TaskConfig(BaseModel):
 
 TASK_CONFIGS = [
     TaskConfig(
-        task=Task.proteus_text_to_image,
+        task=TASK.PROTEUS_TEXT_TO_IMAGE.name,
         overhead=0.5,
         mean=0.18,
         variance=3,
         task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.dreamshaper_text_to_image,
+        task=TASK.DREAMSHAPER_TEXT_TO_IMAGE.name,
         overhead=0.5,
         mean=0.20,
         variance=3,
         task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.playground_text_to_image,
+        task=TASK.PLAYGROUND_TEXT_TO_IMAGE.name,
         overhead=0.5,
         mean=0.1,
         variance=10,
         task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.proteus_image_to_image,
+        task=TASK.PROTEUS_TEXT_TO_IMAGE.name,
         overhead=0.5,
         mean=0.20,
         variance=3,
         task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.dreamshaper_image_to_image,
+        task=TASK.DREAMSHAPER_IMAGE_TO_IMAGE.name,
         overhead=0.5,
         mean=0.27,
         variance=3,
         task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.playground_image_to_image,
+        task=TASK.PLAYGROUND_IMAGE_TO_IMAGE.name,
         overhead=0.5,
         mean=0.10,
         variance=10,
         task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.jugger_inpainting,
+        task=TASK.JUGGER_INPAINT.name,
         overhead=1.2,
         mean=0.15,
         variance=2,
         task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.avatar, overhead=5, mean=0.40, variance=3, task_type=TaskType.IMAGE
+        task=TASK.AVATAR.name,
+        overhead=5,
+        mean=0.40,
+        variance=3,
+        task_type=TaskType.IMAGE,
     ),
     TaskConfig(
-        task=Task.chat_mixtral,
+        task=TASK.CHAT_MIXTRAL.name,
         overhead=1,
         mean=0.006,
         variance=80,
         task_type=TaskType.TEXT,
     ),
     TaskConfig(
-        task=Task.chat_llama_3,
+        task=TASK.CHAT_LLAMA_3.name,
         overhead=1,
         mean=0.008,
         variance=80,
         task_type=TaskType.TEXT,
     ),
     TaskConfig(
-        task=Task.clip_image_embeddings,
+        task=TASK.CLIP_IMAGE_EMBEDDING.name,
         overhead=1,
         mean=0.5,
         variance=2,
         task_type=TaskType.CLIP,
     ),
     TaskConfig(
-        task=Task.translation,
+        task=TASK.TRANSLATION.name,
         overhead=1,
         mean=0.5,
         variance=1,
@@ -177,8 +207,8 @@ TASK_CONFIGS = [
 ]
 
 
-def get_task_config(task: Task) -> TaskConfig:
+def get_task_config(task: TASK) -> TaskConfig:
     for config in TASK_CONFIGS:
         if config.task == task:
             return config
-    raise ValueError(f"Task configuration for {task.value} not found")
+    raise ValueError(f"Task configuration for {TASK.value.name} not found")

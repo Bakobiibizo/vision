@@ -1,7 +1,6 @@
 import sqlite3
 from typing import Dict
-from core import Task, constants as core_cst
-
+from core import Task
 from core import TASK_TO_MAX_CAPACITY
 from mining.db import sql
 from threading import local

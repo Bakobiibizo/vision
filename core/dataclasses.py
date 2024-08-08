@@ -2,8 +2,7 @@ from typing import Optional
 
 from bittensor.chain_data import AxonInfo
 from pydantic import BaseModel
-from config.create_config import constant_obj
-from enum import Enum
+from config import ConstantsObj, CONSTANTS
 
 
 class Model(BaseModel):
@@ -23,3 +22,6 @@ class Axon(Model):
 class TextPrompt(BaseModel):
     text: str
     weight: Optional[float]
+
+
+__all__ = ["ConstantsObj", "CONSTANTS", "Model", "Axon", "TextPrompt"]

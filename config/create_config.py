@@ -1,6 +1,5 @@
 import os
 from typing import Dict, Any, Optional, List, Tuple
-from core import constants as core_cst
 from rich.prompt import Prompt
 from mining.db.db_management import miner_db_manager
 from pydantic import BaseModel, Field
@@ -144,6 +143,13 @@ constant_obj = ConstantsObj(
         "AXON_PORT_PARAM": 4269,
         "AXON_EXTERNAL_IP_PARAM": "172.17.0.1",
         "VISION_DB": "vision_database.db",
+        "TASKS_CONFIG_TABLE": "miner_task_config",
+        "TASKS_CONCURRENCY_CONFIG_TABLE": "miner_concurrency_group",
+        "CONCURRENCY_GROUP_LIMIT": "concurrent_tasks_limit",
+        "TASK_NAME": "task_name",
+        "VOLUME": "volume",
+        "MINER_HOTKEY": "miner_hotkey",
+        "CONCURRENCY_GROUP_ID": "concurrency_group_id",
     }
 )
 
@@ -233,6 +239,13 @@ class CONSTANTS(Enum):
     AXON_PORT_PARAM = constant_obj.AXON_PORT_PARAM
     AXON_EXTERNAL_IP_PARAM = constant_obj.AXON_EXTERNAL_IP_PARAM
     VISION_DB = constant_obj.VISION_DB
+    TASKS_CONFIG_TABLE = constant_obj.TASKS_CONFIG_TABLE
+    TASKS_CONCURRENCY_CONFIG_TABLE = constant_obj.TASKS_CONCURRENCY_CONFIG_TABLE
+    CONCURRENCY_GROUP_LIMIT = constant_obj.CONCURRENCY_GROUP_LIMIT
+    TASK_NAME = constant_obj.TASK_NAME
+    VOLUME = constant_obj.VOLUME
+    MINER_HOTKEY = constant_obj.MINER_HOTKEY
+    CONCURRENCY_GROUP_ID = constant_obj.CONCURRENCY_GROUP_ID
 
 
 for key in CONSTANTS:
@@ -276,26 +289,26 @@ def int_processing_func(input: str) -> Optional[int]:
 
 
 GLOBAL_PARAMETERS = {
-    core_cst.HOTKEY_PARAM: {
+    constant_obj.HOTKEY_PARAM: {
         "default": CONSTANTS.HOTKEY_PARAM,
         "message": "Hotkey name: ",
     },
 }
 
 MISC_PARAMETERS = {
-    core_cst.WALLET_NAME_PARAM: {
+    constant_obj.WALLET_NAME_PARAM: {
         "default": CONSTANTS.WALLET_NAME_PARAM,
         "message": "Wallet Name ",
     },
-    core_cst.SUBTENSOR_NETWORK_PARAM: {
+    constant_obj.SUBTENSOR_NETWORK_PARAM: {
         "default": CONSTANTS.SUBTENSOR_NETWORK_PARAM,
         "message": "Subtensor Network (finney, test, local)",
     },
-    core_cst.SUBTENSOR_CHAINENDPOINT_PARAM: {
+    constant_obj.SUBTENSOR_CHAINENDPOINT_PARAM: {
         "default": CONSTANTS.SUBTENSOR_CHAINPOINT_PARAM,
         "message": "Subtensor Chain Endpoint ",
     },
-    core_cst.IS_VALIDATOR_PARAM: {
+    constant_obj.IS_VALIDATOR_PARAM: {
         "default": CONSTANTS.IS_VALIDATOR_PARAM,
         "message": "Is this a Validator hotkey? (y/n) ",
         "process_function": bool_processing_func,
@@ -303,11 +316,11 @@ MISC_PARAMETERS = {
 }
 
 VALIDATOR_PARAMETERS = {
-    core_cst.API_SERVER_PORT_PARAM: {
+    constant_obj.API_SERVER_PORT_PARAM: {
         "default": CONSTANTS.API_SERVER_PORT_PARAM,
         "message": "API server port (if you're running an organic validator, else leave it)",
     },
-    core_cst.EXTERNAL_SERVER_ADDRESS_PARAM: {
+    constant_obj.EXTERNAL_SERVER_ADDRESS_PARAM: {
         "default": CONSTANTS.EXTERNAL_SERVER_ADDRESS_PARAM,
         "message": "External Server Address: ",
         "process_function": http_address_processing_func,
@@ -315,30 +328,30 @@ VALIDATOR_PARAMETERS = {
 }
 
 MINER_PARAMETERS = {
-    core_cst.AXON_PORT_PARAM: {
+    constant_obj.AXON_PORT_PARAM: {
         "default": CONSTANTS.AXON_PORT_PARAM,
         "message": "Axon Port: ",
     },
-    core_cst.AXON_EXTERNAL_IP_PARAM: {
+    constant_obj.AXON_EXTERNAL_IP_PARAM: {
         "default": CONSTANTS.AXON_EXTERNAL_IP_PARAM,
         "message": "Axon External IP: ",
     },
-    core_cst.IMAGE_WORKER_URL_PARAM: {
+    constant_obj.IMAGE_WORKER_URL_PARAM: {
         "default": CONSTANTS.IMAGE_WORKER_URL_PARAM,
         "message": "Image Worker URL: ",
         "process_function": optional_http_address_processing_func,
     },
-    core_cst.MIXTRAL_TEXT_WORKER_URL_PARAM: {
+    constant_obj.MIXTRAL_TEXT_WORKER_URL_PARAM: {
         "default": CONSTANTS.MIXTRAL_TEXT_WORKER_URL_PARAM,
         "message": "Mixtral Text Worker URL: ",
         "process_function": optional_http_address_processing_func,
     },
-    core_cst.LLAMA_3_TEXT_WORKER_URL_PARAM: {
+    constant_obj.LLAMA_3_TEXT_WORKER_URL_PARAM: {
         "default": CONSTANTS.LLAMA_3_TEXT_WORKER_URL_PARAM,
         "message": "Llama 3 Text Worker URL: ",
         "process_function": optional_http_address_processing_func,
     },
-    core_cst.TRANSLATION_WORKER_URL_PARAM: {
+    constant_obj.TRANSLATION_WORKER_URL_PARAM: {
         "default": CONSTANTS.TRANSLATION_WORKER_URL_PARAM,
         "message": "Translation Text Worker URL: ",
         "process_function": optional_http_address_processing_func,
@@ -359,7 +372,7 @@ def _insert_defaults_for_task_configs(hotkey: str) -> None:
 def handle_parameters(parameters: Dict[str, Any], hotkey: str):
     global config
     for parameter, metadata in parameters.items():
-        if parameter == core_cst.HOTKEY_PARAM:
+        if parameter == constant_obj.HOTKEY_PARAM:
             continue
         while True:
             try:
@@ -385,7 +398,7 @@ def get_input(parameter_metadata: Dict[str, Dict[str, Any]]) -> Any:
 
 def get_config():
     while True:
-        hotkey = get_input(GLOBAL_PARAMETERS[core_cst.HOTKEY_PARAM])
+        hotkey = get_input(GLOBAL_PARAMETERS[constant_obj.HOTKEY_PARAM])
         if hotkey == "":
             break
 
@@ -393,7 +406,7 @@ def get_config():
 
         handle_parameters(MISC_PARAMETERS, hotkey)
 
-        if config[hotkey][core_cst.IS_VALIDATOR_PARAM]:
+        if config[hotkey][constant_obj.IS_VALIDATOR_PARAM]:
             handle_parameters(VALIDATOR_PARAMETERS, hotkey)
         else:
             handle_parameters(MINER_PARAMETERS, hotkey)
@@ -405,7 +418,7 @@ def get_config():
             _insert_defaults_for_task_configs(hotkey)
 
         with open(f".{hotkey}.env", "w") as f:
-            f.write(f"{core_cst.HOTKEY_PARAM}=" + hotkey + "\n")
+            f.write(f"{constant_obj.HOTKEY_PARAM}=" + hotkey + "\n")
             for key, value in config[hotkey].items():
                 f.write(f"{key}=")
                 if value is not None:
